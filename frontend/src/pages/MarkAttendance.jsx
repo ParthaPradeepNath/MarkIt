@@ -21,6 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import AttendanceRing from "@/components/AttendanceRing";
 import DatePicker from "@/components/DatePicker";
 import SubjectIcon from "@/components/SubjectIcon";
+import StatusBadge from "@/components/StatusBadge";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
 import { TableSkeleton } from "@/components/Skeletons";
@@ -46,28 +47,24 @@ const STATUSES = [
     label: "Present",
     icon: Check,
     active: "border-emerald-500/40 bg-emerald-500/12 text-emerald-700 dark:text-emerald-300",
-    dot: "bg-emerald-500",
   },
   {
     value: "absent",
     label: "Absent",
     icon: X,
     active: "border-rose-500/40 bg-rose-500/12 text-rose-700 dark:text-rose-300",
-    dot: "bg-rose-500",
   },
   {
     value: "late",
     label: "Late",
     icon: Clock,
     active: "border-amber-500/40 bg-amber-500/12 text-amber-700 dark:text-amber-300",
-    dot: "bg-amber-500",
   },
   {
     value: "leave",
     label: "Leave",
     icon: Plane,
     active: "border-sky-500/40 bg-sky-500/12 text-sky-700 dark:text-sky-300",
-    dot: "bg-sky-500",
   },
 ];
 
@@ -310,7 +307,7 @@ export default function MarkAttendance() {
                 className="flex-1"
               />
               {date !== today() && (
-                <Button variant="ghost" size="sm" onClick={() => setDate(today())}>
+                <Button variant="secondary" size="sm" onClick={() => setDate(today())}>
                   Today
                 </Button>
               )}
@@ -322,11 +319,11 @@ export default function MarkAttendance() {
               Quick actions
             </Label>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => markAll("present")}>
+              <Button variant="secondary" size="sm" onClick={() => markAll("present")}>
                 <CheckCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 All present
               </Button>
-              <Button variant="outline" size="sm" onClick={() => markAll("absent")}>
+              <Button variant="secondary" size="sm" onClick={() => markAll("absent")}>
                 <X className="size-3.5 text-rose-600 dark:text-rose-400" aria-hidden="true" />
                 All absent
               </Button>
@@ -376,11 +373,10 @@ export default function MarkAttendance() {
         <Card>
           <CardContent className="flex items-center gap-4">
             <AttendanceRing value={summary.percentage} size={72} stroke={7} />
-            <div className="grid flex-1 grid-cols-2 gap-x-3 gap-y-1.5">
+            <div className="grid flex-1 grid-cols-2 gap-x-3 gap-y-1.5 lg:grid-cols-1">
               {STATUSES.map((status) => (
-                <div key={status.value} className="flex items-center gap-1.5">
-                  <span className={cn("size-1.5 rounded-full", status.dot)} aria-hidden="true" />
-                  <span className="text-[11px] text-muted-foreground">{status.label}</span>
+                <div key={status.value} className="flex items-center gap-2">
+                  <StatusBadge status={status.value} />
                   <span className="tnum ml-auto text-[12px] font-medium">
                     {summary.counts[status.value]}
                   </span>
@@ -401,7 +397,7 @@ export default function MarkAttendance() {
               title="No students in this class"
               description="Enroll students into this class before taking attendance."
               action={
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="secondary">
                   <Link to="/classes">Manage classes</Link>
                 </Button>
               }
@@ -510,7 +506,7 @@ export default function MarkAttendance() {
             </p>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               {dirty && (
-                <Button variant="ghost" size="sm" onClick={reset} aria-label="Reset changes">
+                <Button variant="secondary" size="sm" onClick={reset} aria-label="Reset changes">
                   <RotateCcw className="size-3.5" aria-hidden="true" />
                   <span className="hidden sm:inline">Reset</span>
                 </Button>

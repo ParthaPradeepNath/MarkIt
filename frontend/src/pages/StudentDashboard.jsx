@@ -83,7 +83,7 @@ export default function StudentDashboard() {
       title={`${greeting()}, ${firstName(user?.name)}`}
       description="Here's your attendance at a glance."
       actions={
-        <Button asChild variant="outline">
+        <Button asChild variant="secondary">
           <Link to="/history">
             <History className="size-4" aria-hidden="true" />
             Full history
@@ -121,7 +121,7 @@ export default function StudentDashboard() {
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-primary/[0.06] blur-2xl"
           />
-          <CardContent className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <CardContent className="flex flex-1 flex-col justify-center gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
               <AttendanceRing
                 value={hasRecords ? summary.percentage : null}
@@ -148,7 +148,7 @@ export default function StudentDashboard() {
                     : "Your attendance will appear here once your teacher starts marking."}
                 </p>
                 <div className="mt-3.5 flex flex-wrap items-center gap-2">
-                  <Button asChild size="sm" variant="outline">
+                  <Button asChild size="sm" variant="secondary">
                     <Link to="/reports">
                       Detailed report
                       <ArrowUpRight className="size-3.5" aria-hidden="true" />
@@ -159,12 +159,12 @@ export default function StudentDashboard() {
             </div>
 
             <div className="grid grid-cols-3 gap-4 sm:min-w-[150px] sm:grid-cols-1 sm:gap-3">
-              <MiniStat label="Present" value={summary.present ?? 0} dot="bg-emerald-500" />
-              <MiniStat label="Absent" value={summary.absent ?? 0} dot="bg-rose-500" />
+              <MiniStat status="present" value={summary.present ?? 0} />
+              <MiniStat status="absent" value={summary.absent ?? 0} />
               <MiniStat
+                status="late"
                 label="Late / Leave"
                 value={(summary.late ?? 0) + (summary.leave ?? 0)}
-                dot="bg-amber-500"
               />
             </div>
           </CardContent>
@@ -294,7 +294,7 @@ export default function StudentDashboard() {
             <CardTitle>Recent records</CardTitle>
             <p className="mt-1 text-[12px] text-muted-foreground">Your latest attendance entries.</p>
           </div>
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="secondary" size="sm">
             <Link to="/history">View all</Link>
           </Button>
         </CardHeader>
@@ -340,12 +340,11 @@ export default function StudentDashboard() {
   );
 }
 
-function MiniStat({ label, value, dot }) {
+function MiniStat({ status, label, value }) {
   return (
-    <div className="flex items-center gap-2 sm:flex-col sm:items-start sm:gap-1">
-      <span className={`size-1.5 rounded-full ${dot}`} aria-hidden="true" />
-      <span className="order-3 text-[11px] text-muted-foreground sm:order-2 sm:mt-0.5">{label}</span>
-      <span className="tnum ml-auto text-[17px] leading-none font-semibold tracking-[-0.02em] sm:order-1 sm:ml-0">
+    <div className="flex items-center gap-2 sm:flex-col sm:items-start sm:gap-1.5">
+      <StatusBadge status={status} label={label} />
+      <span className="tnum ml-auto text-[17px] leading-none font-semibold tracking-[-0.02em] sm:order-first sm:ml-0">
         {value}
       </span>
     </div>

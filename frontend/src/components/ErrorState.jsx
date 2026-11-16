@@ -24,7 +24,7 @@ export default function ErrorState({
         {description || error || "Check your connection and try again."}
       </p>
       {onRetry && (
-        <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
+        <Button variant="secondary" size="sm" className="mt-4" onClick={onRetry}>
           <RefreshCw className="size-3.5" aria-hidden="true" />
           Try again
         </Button>

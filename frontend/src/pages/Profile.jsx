@@ -284,7 +284,7 @@ export default function Profile() {
                   Last changed details aren&apos;t tracked — change it any time.
                 </p>
               </div>
-              <Button variant="outline" onClick={openPassword}>
+              <Button variant="secondary" onClick={openPassword}>
                 <KeyRound className="size-3.5" aria-hidden="true" />
                 Change password
               </Button>
@@ -364,7 +364,7 @@ export default function Profile() {
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={() => setPwOpen(false)}>
+              <Button type="button" variant="secondary" onClick={() => setPwOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={pwSaving}>

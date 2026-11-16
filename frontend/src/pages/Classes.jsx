@@ -261,7 +261,7 @@ export default function Classes() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
-                          variant="ghost"
+                          variant="secondary"
                           size="icon-sm"
                           className="-mt-1 -mr-1 text-muted-foreground"
                           aria-label={`Actions for ${cls.name}`}
@@ -296,7 +296,7 @@ export default function Classes() {
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="mt-auto flex items-center justify-between gap-2">
                     {count > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5">
@@ -324,7 +324,7 @@ export default function Classes() {
                     )}
 
                     <Button
-                      variant="ghost"
+                      variant="secondary"
                       size="sm"
                       className="text-primary hover:text-primary"
                       onClick={() => openEnroll(cls)}
@@ -395,7 +395,7 @@ export default function Classes() {
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
@@ -516,7 +516,7 @@ export default function Classes() {
                         </span>
                       </span>
                       <Button
-                        variant="ghost"
+                        variant="secondary"
                         size="icon-xs"
                         className="text-muted-foreground hover:text-destructive"
                         onClick={() => removeFromClass(enrollFor, student)}
@@ -532,7 +532,7 @@ export default function Classes() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEnrollFor(null)}>
+            <Button variant="secondary" onClick={() => setEnrollFor(null)}>
               Done
             </Button>
             <Button onClick={doEnroll} disabled={selected.length === 0 || enrolling}>

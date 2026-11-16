@@ -98,7 +98,7 @@ export default function TeacherDashboard() {
       description="Here's how your classes and students are doing today."
       actions={
         <>
-          <Button asChild variant="outline">
+          <Button asChild variant="secondary">
             <Link to="/classes">
               <School className="size-4" aria-hidden="true" />
               New class
@@ -143,7 +143,7 @@ export default function TeacherDashboard() {
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-primary/[0.06] blur-2xl"
           />
-          <CardContent className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <CardContent className="flex flex-1 flex-col justify-center gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
               <AttendanceRing
                 value={todaySummary.percentage}
@@ -172,7 +172,7 @@ export default function TeacherDashboard() {
                       Mark attendance
                     </Link>
                   </Button>
-                  <Button asChild size="sm" variant="ghost">
+                  <Button asChild size="sm" variant="secondary">
                     <Link to="/attendance">
                       View records
                       <ArrowUpRight className="size-3.5" aria-hidden="true" />
@@ -182,11 +182,11 @@ export default function TeacherDashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 sm:min-w-[188px] sm:grid-cols-2 sm:gap-x-6 sm:gap-y-4">
-              <Breakdown label="Present" value={todaySummary.counts.present} dot="bg-emerald-500" />
-              <Breakdown label="Absent" value={todaySummary.counts.absent} dot="bg-rose-500" />
-              <Breakdown label="Late" value={todaySummary.counts.late} dot="bg-amber-500" />
-              <Breakdown label="Leave" value={todaySummary.counts.leave} dot="bg-sky-500" />
+            <div className="grid grid-cols-2 gap-3 sm:min-w-[188px] sm:gap-x-6 sm:gap-y-4">
+              <Breakdown status="present" value={todaySummary.counts.present} />
+              <Breakdown status="absent" value={todaySummary.counts.absent} />
+              <Breakdown status="late" value={todaySummary.counts.late} />
+              <Breakdown status="leave" value={todaySummary.counts.leave} />
             </div>
           </CardContent>
         </Card>
@@ -227,7 +227,7 @@ export default function TeacherDashboard() {
                 {lowAttendance.length > 3 ? ` · +${lowAttendance.length - 3} more` : ""}
               </p>
             </div>
-            <Button asChild variant="outline" size="sm" className="self-start sm:self-auto">
+            <Button asChild variant="secondary" size="sm" className="self-start sm:self-auto">
               <Link to="/reports">Review reports</Link>
             </Button>
           </CardContent>
@@ -238,7 +238,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle>Your classes</CardTitle>
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="secondary" size="sm">
               <Link to="/classes">
                 View all
                 <ChevronRight className="size-3.5" aria-hidden="true" />
@@ -297,7 +297,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle>Needs attention</CardTitle>
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="secondary" size="sm">
               <Link to="/reports">
                 Reports
                 <ChevronRight className="size-3.5" aria-hidden="true" />
@@ -364,7 +364,7 @@ export default function TeacherDashboard() {
                 : "Attendance marked today will appear here."}
             </p>
           </div>
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="secondary" size="sm">
             <Link to="/attendance">
               View all
               <ChevronRight className="size-3.5" aria-hidden="true" />
@@ -379,7 +379,7 @@ export default function TeacherDashboard() {
               title="No attendance marked yet"
               description="Take attendance for a class and it will show up here instantly."
               action={
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="secondary">
                   <Link to="/mark-attendance">Mark attendance</Link>
                 </Button>
               }
@@ -423,14 +423,11 @@ export default function TeacherDashboard() {
   );
 }
 
-function Breakdown({ label, value, dot }) {
+function Breakdown({ status, value }) {
   return (
     <div>
       <p className="tnum text-[18px] leading-none font-semibold tracking-[-0.02em]">{value}</p>
-      <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-        <span className={`size-1.5 rounded-full ${dot}`} aria-hidden="true" />
-        {label}
-      </p>
+      <StatusBadge status={status} className="mt-1.5" />
     </div>
   );
 }

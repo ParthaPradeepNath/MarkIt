@@ -54,7 +54,7 @@ export default function SchedulePicker({
         <Button
           id={id}
           type="button"
-          variant="outline"
+          variant="secondary"
           className={cn("min-w-0 justify-start gap-2 font-normal", className)}
         >
           <CalendarClock className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -94,7 +94,7 @@ export default function SchedulePicker({
                         key={slot.label}
                         type="button"
                         size="sm"
-                        variant={active ? "default" : "outline"}
+                        variant={active ? "default" : "secondary"}
                         disabled={!date || isPastSlot(slot)}
                         className="w-full"
                         onClick={() => onTimeChange(slot.label)}
@@ -110,7 +110,7 @@ export default function SchedulePicker({
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
-          <Button type="button" size="sm" variant="ghost" onClick={clear} disabled={!date}>
+          <Button type="button" size="sm" variant="secondary" onClick={clear} disabled={!date}>
             Clear
           </Button>
           <Button type="button" size="sm" onClick={() => setOpen(false)} disabled={!date}>

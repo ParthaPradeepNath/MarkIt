@@ -279,7 +279,7 @@ export default function Students() {
                 ) : (
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setQuery("");
                       setBatchFilter("all");
@@ -348,7 +348,7 @@ export default function Students() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
+                            variant="secondary"
                             size="icon-sm"
                             className="text-muted-foreground"
                             aria-label={`Actions for ${student.name}`}
@@ -485,7 +485,7 @@ export default function Students() {
               )}
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
@@ -527,7 +527,7 @@ export default function Students() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEnrollTarget(null)}>
+            <Button variant="secondary" onClick={() => setEnrollTarget(null)}>
               Cancel
             </Button>
             <Button onClick={enroll} disabled={!enrollClassId || enrolling || alreadyEnrolled}>

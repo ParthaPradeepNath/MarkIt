@@ -21,7 +21,7 @@ export default function StatCard({
 }) {
   return (
     <Card className={cn("relative", className)}>
-      <CardContent className="flex items-start justify-between gap-4">
+      <CardContent className="flex items-center justify-between gap-4">
         <div className="min-w-0 space-y-1.5">
           <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
             {title}

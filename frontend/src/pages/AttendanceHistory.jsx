@@ -181,7 +181,7 @@ export default function AttendanceHistory() {
           : "Every session your teachers have recorded for you."
       }
       actions={
-        <Button variant="outline" onClick={exportCsv} disabled={records.length === 0}>
+        <Button variant="secondary" onClick={exportCsv} disabled={records.length === 0}>
           <Download className="size-4" aria-hidden="true" />
           Export CSV
         </Button>
@@ -337,7 +337,7 @@ export default function AttendanceHistory() {
                     records.length > 0 ? (
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => {
                           setStatusFilter("all");
                           setQuery("");
@@ -388,7 +388,7 @@ export default function AttendanceHistory() {
                         {isTeacher && (
                           <TableCell className="text-right">
                             <Button
-                              variant="ghost"
+                              variant="secondary"
                               size="icon-sm"
                               className="text-muted-foreground"
                               onClick={() => setCorrection({ ...record })}
@@ -465,7 +465,7 @@ export default function AttendanceHistory() {
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={() => setCorrection(null)}>
+              <Button type="button" variant="secondary" onClick={() => setCorrection(null)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>

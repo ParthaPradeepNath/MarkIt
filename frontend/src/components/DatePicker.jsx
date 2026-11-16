@@ -37,7 +37,7 @@ export default function DatePicker({
         <Button
           id={id}
           type="button"
-          variant="outline"
+          variant="secondary"
           className={cn("min-w-0 justify-start gap-2 font-normal", className)}
         >
           <CalendarIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />

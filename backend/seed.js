@@ -1,14 +1,9 @@
-import "dotenv/config";
-import mongoose from "mongoose";
+import "./config/env.js";
+import connectDB, { disconnectDB } from "./config/db.js";
 import User from "./models/User.js";
 import Student from "./models/Student.js";
 import Class from "./models/Class.js";
 import Attendance from "./models/Attendance.js";
-
-const connectDB = async () => {
-  const conn = await mongoose.connect(process.env.MONGO_URI);
-  console.log(`MongoDB connected: ${conn.connection.host}`);
-};
 
 const run = async () => {
   await connectDB();
@@ -121,10 +116,11 @@ Seed complete!
   Attendance : generated for last ${days} days
   `);
 
-  await mongoose.disconnect();
+  await disconnectDB();
 };
 
-run().catch((err) => {
+run().catch(async (err) => {
   console.error(err);
+  await disconnectDB().catch(() => {});
   process.exit(1);
 });

@@ -175,7 +175,7 @@ export default function Reports() {
           : "Your attendance trends and class-by-class breakdown."
       }
       actions={
-        <Button variant="outline" size="icon-sm" onClick={load} aria-label="Refresh report" title="Refresh report">
+        <Button variant="secondary" size="icon-sm" onClick={load} aria-label="Refresh report" title="Refresh report">
           <RefreshCw className="size-3.5" aria-hidden="true" />
         </Button>
       }
@@ -278,7 +278,7 @@ export default function Reports() {
             }
             action={
               isTeacher && classes.length === 0 ? (
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="secondary">
                   <Link to="/classes">Create a class</Link>
                 </Button>
               ) : undefined
@@ -464,7 +464,7 @@ export default function Reports() {
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
-                            variant="ghost"
+                            variant="secondary"
                             size="icon-sm"
                             className="text-muted-foreground"
                             onClick={() => viewStudent(student._id)}

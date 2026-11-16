@@ -76,8 +76,29 @@ export const updateStudent = async (req, res) => {
     if (name) student.name = name;
     if (rollNumber) student.rollNumber = rollNumber;
     if (batch) student.batch = batch;
-    if (className) student.className = className;
     if (guardianPhone !== undefined) student.guardianPhone = guardianPhone;
+
+    if (className !== undefined) {
+      const previousClassId = student.className?.toString() || "";
+      const nextClassId = className ? className.toString() : "";
+
+      if (nextClassId !== previousClassId) {
+        if (previousClassId) {
+          await Class.updateOne(
+            { _id: previousClassId },
+            { $pull: { enrolledStudents: student._id } }
+          );
+        }
+        if (nextClassId) {
+          await Class.updateOne(
+            { _id: nextClassId },
+            { $addToSet: { enrolledStudents: student._id } }
+          );
+        }
+        student.className = nextClassId || undefined;
+      }
+    }
+
     await student.save();
     await User.findOneAndUpdate({ studentId: student._id }, { name: student.name });
     res.json(student);

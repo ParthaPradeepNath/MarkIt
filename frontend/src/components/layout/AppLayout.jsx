@@ -169,7 +169,7 @@ export default function AppLayout() {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl backdrop-saturate-150 md:px-5">
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               className="md:hidden"
               onClick={() => setMobileOpen(true)}
@@ -179,7 +179,7 @@ export default function AppLayout() {
             </Button>
 
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               className="hidden text-muted-foreground hover:text-foreground md:inline-flex"
               onClick={toggleCollapsed}

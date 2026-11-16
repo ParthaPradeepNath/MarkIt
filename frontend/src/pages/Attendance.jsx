@@ -177,7 +177,7 @@ export default function Attendance() {
         title="Attendance records"
         description="Browse, filter and correct attendance across every class."
         actions={
-          <Button asChild variant="outline">
+          <Button asChild variant="secondary">
             <Link to="/mark-attendance">
               <CalendarDays className="size-4" aria-hidden="true" />
               Mark attendance
@@ -225,7 +225,7 @@ export default function Attendance() {
                   className="flex-1"
                 />
                 {date && (
-                  <Button variant="ghost" size="sm" onClick={() => setDate("")}>
+                  <Button variant="secondary" size="sm" onClick={() => setDate("")}>
                     Clear
                   </Button>
                 )}
@@ -286,13 +286,13 @@ export default function Attendance() {
               }
               action={
                 records.length === 0 ? (
-                  <Button asChild size="sm" variant="outline">
+                  <Button asChild size="sm" variant="secondary">
                     <Link to="/mark-attendance">Mark attendance</Link>
                   </Button>
                 ) : (
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setStatusFilter("all");
                       setQuery("");
@@ -354,7 +354,7 @@ export default function Attendance() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
+                            variant="secondary"
                             size="icon-sm"
                             className="text-muted-foreground"
                             aria-label={`Actions for ${record.studentId?.name || "record"}`}
@@ -432,7 +432,7 @@ export default function Attendance() {
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={() => setEdit(null)}>
+              <Button type="button" variant="secondary" onClick={() => setEdit(null)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>

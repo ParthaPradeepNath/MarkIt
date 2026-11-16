@@ -12,7 +12,7 @@ export default function ThemeToggle({ className }) {
 
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       size="icon"
       className={cn("text-muted-foreground hover:text-foreground", className)}
       onClick={() => setTheme(isDark ? "light" : "dark")}

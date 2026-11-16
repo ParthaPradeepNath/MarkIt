@@ -58,7 +58,7 @@ export function ConfirmProvider({ children }) {
             </DialogHeader>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => settle(false)}>
+            <Button variant="secondary" onClick={() => settle(false)}>
               {pending?.cancelLabel || "Cancel"}
             </Button>
             <Button
