@@ -1,22 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-export function StatGridSkeleton({
-  count = 4,
-  className,
-}: {
-  count?: number;
-  className?: string;
-}) {
-  return (
-    <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}>
-      {Array.from({ length: count }).map((_, index) => (
-        <Skeleton key={index} className="h-[104px] rounded-xl" />
-      ))}
-    </div>
-  );
-}
-
 export function TableSkeleton({
   rows = 6,
   cols = 5,
@@ -39,32 +23,6 @@ export function TableSkeleton({
           ))}
         </div>
       ))}
-    </div>
-  );
-}
-
-export function CardSkeleton({
-  className,
-  height = "h-44",
-}: {
-  className?: string;
-  height?: string;
-}) {
-  return <Skeleton className={cn("rounded-xl", height, className)} />;
-}
-
-export function PageSkeleton({ stats = 4, rows = 6, cols = 5 }) {
-  return (
-    <div className="space-y-6" aria-busy="true" aria-live="polite">
-      <div className="space-y-2">
-        <Skeleton className="h-7 w-48" />
-        <Skeleton className="h-4 w-72 max-w-full" />
-      </div>
-      {stats > 0 && <StatGridSkeleton count={stats} />}
-      <Skeleton className="h-[320px] rounded-xl" />
-      <div className="border-border/70 bg-card rounded-xl border p-2">
-        <TableSkeleton rows={rows} cols={cols} />
-      </div>
     </div>
   );
 }

@@ -11,5 +11,3 @@ const backendDir = path.resolve(
 );
 
 dotenv.config({ path: path.join(backendDir, ".env") });
-
-export { backendDir };

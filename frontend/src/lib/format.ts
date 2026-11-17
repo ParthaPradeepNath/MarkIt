@@ -120,8 +120,3 @@ export function plural(
 ): string {
   return `${count} ${count === 1 ? singular : pluralForm}`;
 }
-
-export function percent(value: unknown): number {
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.round(number) : 0;
-}

@@ -33,4 +33,3 @@ export const getDatabaseInfo = () => ({
 });
 
 export { prisma };
-export default prisma;

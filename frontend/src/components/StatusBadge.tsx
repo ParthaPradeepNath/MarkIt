@@ -47,5 +47,3 @@ export default function StatusBadge({
     </span>
   );
 }
-
-export { config as statusConfig };

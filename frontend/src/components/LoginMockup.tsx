@@ -1,133 +1,128 @@
 import AttendanceRing from "@/components/AttendanceRing";
-import StatusBadge from "@/components/StatusBadge";
-import SubjectIcon from "@/components/SubjectIcon";
+import { Badge, type BadgeProps } from "@/components/reui/badge";
+import {
+  Frame,
+  FrameDescription,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/reui/frame";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { AttendanceStatus } from "@/types";
 
-/**
- * A still product shot for the login brand panel: a cropped miniature of the
- * real "Mark attendance" screen. Real content is the focal point; every row
- * shares one grid so avatars, names and statuses line up, with an even inset
- * around the whole card.
- */
-const rollCall: Array<{
+type AttendanceRow = {
   name: string;
   roll: string;
-  status: AttendanceStatus;
-  tone: string;
-}> = [
+  status: string;
+  badge: NonNullable<BadgeProps["variant"]>;
+  time: string;
+};
+
+/**
+ * A still product shot for the login brand panel: the reui c-table-9 pattern,
+ * populated with real MarkIt attendance data.
+ */
+const activity: AttendanceRow[] = [
   {
     name: "Arjun Sharma",
     roll: "B01",
-    status: "present",
-    tone: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+    status: "Present",
+    badge: "success",
+    time: "9:02 AM",
   },
   {
     name: "Priya Patel",
     roll: "B02",
-    status: "present",
-    tone: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+    status: "Present",
+    badge: "success",
+    time: "9:03 AM",
   },
   {
     name: "Rahul Verma",
     roll: "B03",
-    status: "late",
-    tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+    status: "Late",
+    badge: "warning-outline",
+    time: "9:11 AM",
+  },
+  {
+    name: "Sneha Iyer",
+    roll: "B04",
+    status: "Absent",
+    badge: "destructive-light",
+    time: "9:15 AM",
+  },
+  {
+    name: "Kabir Singh",
+    roll: "B05",
+    status: "Present",
+    badge: "success",
+    time: "9:16 AM",
   },
 ];
 
 export default function LoginMockup({ className }: { className?: string }) {
   return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        "border-border/70 bg-card shadow-elevated relative w-full max-w-[440px] overflow-hidden rounded-2xl border",
-        className
-      )}
-    >
-      {/* Quiet browser chrome: centered URL pill, no invented toolbar. */}
-      <div className="border-border/60 bg-muted/25 flex h-9 items-center justify-center border-b">
-        <span className="tnum bg-muted/70 text-muted-foreground rounded-full px-3 py-0.5 text-[10px]">
-          markit.app/attendance
-        </span>
-      </div>
-
-      {/* One even inset for all content; dividers share the same lane. */}
-      <div className="p-5">
-        {/* Class context — the words that make it recognizably MarkIt. */}
-        <div className="flex items-center gap-3">
-          <SubjectIcon
-            subject="Mathematics"
-            name="Mathematics 101"
-            className="size-10 rounded-xl"
-            iconClassName="size-5"
-            strokeWidth={1.8}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="text-foreground truncate text-[13px] leading-tight font-semibold">
-              Mathematics 101
-            </p>
-            <p className="text-muted-foreground mt-1 truncate text-[11px] leading-tight">
-              Batch A · 25 students
-            </p>
+    <div aria-hidden="true" className={cn("w-full max-w-[540px]", className)}>
+      <Frame spacing="sm" className="shadow-elevated">
+        <FrameHeader className="flex-row items-center justify-between gap-4">
+          <div className="min-w-0">
+            <FrameTitle>Today&apos;s attendance</FrameTitle>
+            <FrameDescription>Mathematics 101 · Batch A</FrameDescription>
           </div>
-        </div>
+          <AttendanceRing value={92} size={56} stroke={6} />
+        </FrameHeader>
 
-        <div className="border-border/60 my-4 border-t" />
-
-        {/* Payoff: one big number, the count beneath it, a quiet progress line. */}
-        <div className="flex items-center gap-5">
-          <AttendanceRing value={92} size={82} stroke={8} label="Today" />
-          <div className="min-w-0 flex-1">
-            <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
-              Today&apos;s attendance
-            </p>
-            <p className="text-foreground mt-1.5 text-[16px] leading-tight font-semibold tracking-[-0.02em]">
-              23 of 25 present
-            </p>
-            <Progress value={92} className="mt-3" />
-          </div>
-        </div>
-
-        <div className="border-border/60 my-4 border-t" />
-
-        {/* Roll call: one grid template for every row so the columns align. */}
-        <div>
-          <p className="text-muted-foreground mb-2 text-[11px] font-medium tracking-[0.06em] uppercase">
-            Roll call
-          </p>
-          <div className="space-y-0.5">
-            {rollCall.map(({ name, roll, status, tone }) => (
-              <div
-                key={roll}
-                className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-1.5"
-              >
-                <Avatar size="sm">
-                  <AvatarFallback
-                    className={cn("text-[10px] font-medium", tone)}
-                  >
-                    {name
-                      .split(" ")
-                      .map((part) => part[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <p className="text-foreground truncate text-[12px] leading-tight font-medium">
-                    {name}
-                  </p>
-                  <p className="text-muted-foreground mt-0.5 text-[10px] leading-tight">
-                    Roll {roll}
-                  </p>
-                </div>
-                <StatusBadge status={status} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+        <FramePanel className="p-0!">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Student</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Roll</TableHead>
+                <TableHead className="text-right">Time</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {activity.map(({ name, roll, status, badge, time }) => (
+                <TableRow key={roll}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar size="sm">
+                        <AvatarFallback className="bg-muted text-[10px] font-medium">
+                          {name
+                            .split(" ")
+                            .map((part) => part[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-[13px] font-medium">{name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={badge} size="sm">
+                      {status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="tnum text-muted-foreground text-[12px]">
+                    {roll}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground tnum text-right text-[12px]">
+                    {time}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </FramePanel>
+      </Frame>
     </div>
   );
 }

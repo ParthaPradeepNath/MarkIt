@@ -1,6 +1,6 @@
 import type { AttendanceStatus } from "../generated/prisma/client";
 
-export const ATTENDANCE_STATUSES: readonly AttendanceStatus[] = [
+const ATTENDANCE_STATUSES: readonly AttendanceStatus[] = [
   "present",
   "absent",
   "late",

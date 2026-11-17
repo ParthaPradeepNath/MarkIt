@@ -3,7 +3,7 @@ import type { StatusFilterValue } from "@/types";
 
 type StatusOption = { value: StatusFilterValue; label: string; dot?: string };
 
-export const STATUS_OPTIONS: StatusOption[] = [
+const STATUS_OPTIONS: StatusOption[] = [
   { value: "present", label: "Present", dot: "bg-emerald-500" },
   { value: "absent", label: "Absent", dot: "bg-rose-500" },
   { value: "late", label: "Late", dot: "bg-amber-500" },
