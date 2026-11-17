@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { format } from "date-fns";
 import {
   CalendarRange,
@@ -43,8 +43,15 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { formatDate, getErrorMessage, initials, plural } from "@/lib/format";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  StatusCounts,
+  StatusFilterValue,
+  Student,
+} from "@/types";
 
-const STATUSES = [
+const STATUSES: Array<{ value: AttendanceStatus; label: string; dot: string }> = [
   { value: "present", label: "Present", dot: "bg-emerald-500" },
   { value: "absent", label: "Absent", dot: "bg-rose-500" },
   { value: "late", label: "Late", dot: "bg-amber-500" },
@@ -56,14 +63,14 @@ export default function AttendanceHistory() {
   const isTeacher = user?.role === "teacher";
   const ownStudentId = user?.student?.id || user?.studentId;
 
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [studentId, setStudentId] = useState("");
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("all");
   const [query, setQuery] = useState("");
-  const [correction, setCorrection] = useState(null);
+  const [correction, setCorrection] = useState<AttendanceRecord | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -104,8 +111,8 @@ export default function AttendanceHistory() {
   const selectedStudent = students.find((student) => student.id === studentId);
   const studentName = selectedStudent?.name || user?.name || "Student";
 
-  const counts = useMemo(() => {
-    const next = { all: records.length, present: 0, absent: 0, late: 0, leave: 0 };
+  const counts = useMemo<StatusCounts>(() => {
+    const next: StatusCounts = { all: records.length, present: 0, absent: 0, late: 0, leave: 0 };
     records.forEach((record) => {
       if (next[record.status] !== undefined) next[record.status] += 1;
     });
@@ -126,8 +133,9 @@ export default function AttendanceHistory() {
   const present = counts.present + counts.late;
   const percentage = counts.all ? Math.round((present / counts.all) * 100) : null;
 
-  const saveCorrection = async (event) => {
+  const saveCorrection = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!correction) return;
     setSaving(true);
     try {
       await api.put(`/attendance/${correction.id}`, {
@@ -435,7 +443,7 @@ export default function AttendanceHistory() {
                         key={status.value}
                         type="button"
                         onClick={() =>
-                          setCorrection((previous) => ({ ...previous, status: status.value }))
+                          setCorrection((previous) => ({ ...previous!, status: status.value }))
                         }
                         aria-pressed={active}
                         className={cn(
@@ -458,7 +466,7 @@ export default function AttendanceHistory() {
                   id="history-remark"
                   value={correction?.remark || ""}
                   onChange={(event) =>
-                    setCorrection((previous) => ({ ...previous, remark: event.target.value }))
+                    setCorrection((previous) => ({ ...previous!, remark: event.target.value }))
                   }
                   placeholder="Reason for correction"
                 />

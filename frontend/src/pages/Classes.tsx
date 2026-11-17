@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import {
@@ -46,13 +46,22 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getErrorMessage, initials, plural } from "@/lib/format";
+import type { ClassInfo, Student } from "@/types";
 
-const emptyForm = { name: "", subject: "", batch: "", scheduleDate: null, scheduleTime: "" };
+type ClassForm = {
+  name: string;
+  subject: string;
+  batch: string;
+  scheduleDate: Date | null;
+  scheduleTime: string;
+};
+
+const emptyForm: ClassForm = { name: "", subject: "", batch: "", scheduleDate: null, scheduleTime: "" };
 
 export default function Classes() {
   const confirm = useConfirm();
-  const [classes, setClasses] = useState([]);
-  const [allStudents, setAllStudents] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -60,8 +69,8 @@ export default function Classes() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const [enrollFor, setEnrollFor] = useState(null);
-  const [selected, setSelected] = useState([]);
+  const [enrollFor, setEnrollFor] = useState<ClassInfo | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
   const [enrollQuery, setEnrollQuery] = useState("");
   const [enrolling, setEnrolling] = useState(false);
 
@@ -70,8 +79,8 @@ export default function Classes() {
     setError("");
     try {
       const [classResponse, studentResponse] = await Promise.all([
-        api.get("/classes"),
-        api.get("/students"),
+        api.get<ClassInfo[]>("/classes"),
+        api.get<Student[]>("/students"),
       ]);
       setClasses(classResponse.data);
       setAllStudents(studentResponse.data);
@@ -94,7 +103,7 @@ export default function Classes() {
     0
   );
 
-  const submit = async (event) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     const schedule = form.scheduleDate
@@ -118,7 +127,7 @@ export default function Classes() {
     }
   };
 
-  const remove = async (cls) => {
+  const remove = async (cls: ClassInfo) => {
     const ok = await confirm({
       title: `Delete ${cls.name}?`,
       description:
@@ -135,7 +144,7 @@ export default function Classes() {
     }
   };
 
-  const openEnroll = (cls) => {
+  const openEnroll = (cls: ClassInfo) => {
     setEnrollFor(cls);
     setSelected([]);
     setEnrollQuery("");
@@ -174,7 +183,7 @@ export default function Classes() {
     }
   };
 
-  const removeFromClass = async (cls, student) => {
+  const removeFromClass = async (cls: ClassInfo, student: Student) => {
     const ok = await confirm({
       title: `Remove ${student.name}?`,
       description: `They will be removed from ${cls.name}. Their attendance history is kept.`,
@@ -300,7 +309,7 @@ export default function Classes() {
                     {count > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5">
-                          {cls.students.slice(0, 4).map((student) => (
+                          {(cls.students ?? []).slice(0, 4).map((student) => (
                             <Avatar key={student.id} size="sm">
                               <AvatarFallback className="bg-muted text-[9px] font-semibold ring-1 ring-border/60 ring-inset">
                                 {initials(student.name)}
@@ -497,7 +506,7 @@ export default function Classes() {
                   Enrolled
                 </p>
                 <ul className="max-h-[132px] divide-y divide-border/60 overflow-y-auto overscroll-contain rounded-lg border border-border/70">
-                  {enrollFor.students.map((student) => (
+                  {(enrollFor?.students ?? []).map((student) => (
                     <li
                       key={student.id}
                       className="flex items-center gap-3 px-3 py-2"
@@ -519,7 +528,7 @@ export default function Classes() {
                         variant="secondary"
                         size="icon-xs"
                         className="text-muted-foreground hover:text-destructive"
-                        onClick={() => removeFromClass(enrollFor, student)}
+                        onClick={() => enrollFor && removeFromClass(enrollFor, student)}
                         aria-label={`Remove ${student.name}`}
                       >
                         <X className="size-3.5" />

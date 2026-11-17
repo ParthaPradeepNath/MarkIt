@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, type ReactNode } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ConfirmProvider } from "@/components/ConfirmDialog";
@@ -6,6 +6,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import Login from "@/pages/Login";
 import { Toaster } from "@/components/ui/sonner";
 import { Logo } from "@/components/Logo";
+import type { Role } from "@/types";
 
 const TeacherDashboard = lazy(() => import("@/pages/TeacherDashboard"));
 const StudentDashboard = lazy(() => import("@/pages/StudentDashboard"));
@@ -39,7 +40,7 @@ function FullPageLoader() {
   );
 }
 
-function ProtectedRoute({ children, roles }) {
+function ProtectedRoute({ children, roles }: { children: ReactNode; roles?: Role[] }) {
   const { user, loading } = useAuth();
 
   if (loading) return <FullPageLoader />;
@@ -50,7 +51,7 @@ function ProtectedRoute({ children, roles }) {
   return children;
 }
 
-function withSuspense(element) {
+function withSuspense(element: ReactNode) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
 }
 

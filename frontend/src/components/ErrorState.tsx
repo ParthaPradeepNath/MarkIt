@@ -1,6 +1,15 @@
 import { RefreshCw, TriangleAlert } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+type ErrorStateProps = {
+  title?: string;
+  description?: ReactNode;
+  error?: ReactNode;
+  onRetry?: () => void;
+  className?: string;
+};
 
 export default function ErrorState({
   title = "Couldn't load this page",
@@ -8,7 +17,7 @@ export default function ErrorState({
   error,
   onRetry,
   className,
-}) {
+}: ErrorStateProps) {
   return (
     <div
       className={cn(

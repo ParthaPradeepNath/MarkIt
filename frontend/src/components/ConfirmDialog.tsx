@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +10,36 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ConfirmContext = createContext(() => Promise.resolve(true));
+type ConfirmTone = "danger" | "primary" | "default";
 
-export function ConfirmProvider({ children }) {
-  const [pending, setPending] = useState(null);
+type ConfirmOptions =
+  | string
+  | {
+      title?: string;
+      description?: string;
+      confirmLabel?: string;
+      cancelLabel?: string;
+      tone?: ConfirmTone;
+    };
 
-  const confirm = useCallback((options) => {
-    return new Promise((resolve) => {
+type PendingConfirm = {
+  resolve: (result: boolean) => void;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  tone?: ConfirmTone;
+};
+
+const ConfirmContext = createContext<(options: ConfirmOptions) => Promise<boolean>>(
+  () => Promise.resolve(true)
+);
+
+export function ConfirmProvider({ children }: { children: ReactNode }) {
+  const [pending, setPending] = useState<PendingConfirm | null>(null);
+
+  const confirm = useCallback((options: ConfirmOptions): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
       setPending({
         resolve,
         title: typeof options === "string" ? options : options?.title,
@@ -28,7 +51,7 @@ export function ConfirmProvider({ children }) {
     });
   }, []);
 
-  const settle = (result) => {
+  const settle = (result: boolean) => {
     pending?.resolve(result);
     setPending(null);
   };

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * cross-fades with a short, zero-bounce spring; reduced motion keeps only the
  * opacity fade. The label carries the state — motion is never the only cue.
  */
-export default function ThemeToggle({ className }) {
+export default function ThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
   const reduce = useReducedMotion();
   const isDark = resolvedTheme === "dark";

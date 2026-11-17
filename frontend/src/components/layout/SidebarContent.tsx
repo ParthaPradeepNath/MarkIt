@@ -14,8 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { initials } from "@/lib/format";
+import type { NavGroup, NavItemData, User } from "@/types";
 
-function NavItem({ item, collapsed, onNavigate, layoutId, reduce }) {
+type NavItemProps = {
+  item: NavItemData;
+  collapsed: boolean;
+  onNavigate?: () => void;
+  layoutId: string;
+  reduce: boolean | null;
+};
+
+function NavItem({ item, collapsed, onNavigate, layoutId, reduce }: NavItemProps) {
   const { to, label, icon: Icon, end } = item;
 
   return (
@@ -70,6 +79,15 @@ function NavItem({ item, collapsed, onNavigate, layoutId, reduce }) {
   );
 }
 
+type SidebarContentProps = {
+  groups: NavGroup[];
+  user?: User | null;
+  collapsed?: boolean;
+  onNavigate?: () => void;
+  onLogout: () => void;
+  layoutId: string;
+};
+
 export default function SidebarContent({
   groups,
   user,
@@ -77,7 +95,7 @@ export default function SidebarContent({
   onNavigate,
   onLogout,
   layoutId,
-}) {
+}: SidebarContentProps) {
   const reduce = useReducedMotion();
   const navigate = useNavigate();
   const userInitials = initials(user?.name);

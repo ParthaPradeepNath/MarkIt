@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function StatGridSkeleton({ count = 4, className }) {
+export function StatGridSkeleton({ count = 4, className }: { count?: number; className?: string }) {
   return (
     <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}>
       {Array.from({ length: count }).map((_, index) => (
@@ -11,7 +11,15 @@ export function StatGridSkeleton({ count = 4, className }) {
   );
 }
 
-export function TableSkeleton({ rows = 6, cols = 5, className }) {
+export function TableSkeleton({
+  rows = 6,
+  cols = 5,
+  className,
+}: {
+  rows?: number;
+  cols?: number;
+  className?: string;
+}) {
   return (
     <div className={cn("space-y-2 p-4", className)}>
       {Array.from({ length: rows }).map((_, row) => (
@@ -29,7 +37,7 @@ export function TableSkeleton({ rows = 6, cols = 5, className }) {
   );
 }
 
-export function CardSkeleton({ className, height = "h-44" }) {
+export function CardSkeleton({ className, height = "h-44" }: { className?: string; height?: string }) {
   return <Skeleton className={cn("rounded-xl", height, className)} />;
 }
 

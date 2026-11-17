@@ -1,5 +1,15 @@
-import { Inbox } from "lucide-react";
+import { Inbox, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+
+type EmptyStateProps = {
+  icon?: LucideIcon;
+  title?: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+  className?: string;
+  compact?: boolean;
+};
 
 export default function EmptyState({
   icon: Icon = Inbox,
@@ -8,7 +18,7 @@ export default function EmptyState({
   action,
   className,
   compact = false,
-}) {
+}: EmptyStateProps) {
   return (
     <div
       className={cn(

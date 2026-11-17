@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -10,6 +12,16 @@ const tones = {
   neutral: "bg-muted text-muted-foreground ring-border",
 };
 
+type StatCardProps = {
+  title?: ReactNode;
+  value?: ReactNode;
+  sub?: ReactNode;
+  icon?: LucideIcon;
+  tone?: keyof typeof tones;
+  className?: string;
+  action?: ReactNode;
+};
+
 export default function StatCard({
   title,
   value,
@@ -18,7 +30,7 @@ export default function StatCard({
   tone = "primary",
   className,
   action,
-}) {
+}: StatCardProps) {
   return (
     <Card className={cn("relative", className)}>
       <CardContent className="flex items-center justify-between gap-4">

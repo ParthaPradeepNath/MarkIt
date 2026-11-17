@@ -33,8 +33,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { initials } from "@/lib/format";
+import type { NavGroup } from "@/types";
 
-const teacherGroups = [
+const teacherGroups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
@@ -58,7 +59,7 @@ const teacherGroups = [
   },
 ];
 
-const studentGroups = [
+const studentGroups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
@@ -122,7 +123,7 @@ export default function AppLayout() {
 
   const userInitials = initials(user?.name);
 
-  const accountMenu = (align = "end") => (
+  const accountMenu = (align: "start" | "end" = "end") => (
     <DropdownMenuContent align={align} sideOffset={6} className="min-w-52">
       <DropdownMenuLabel className="px-2 py-1.5">
         <p className="truncate text-[13px] font-medium text-foreground">{user?.name}</p>

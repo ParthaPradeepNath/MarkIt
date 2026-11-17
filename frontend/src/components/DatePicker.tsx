@@ -6,15 +6,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-function parseValue(value) {
+function parseValue(value: string | null | undefined): Date | undefined {
   if (!value) return undefined;
   const date = new Date(`${value}T00:00:00`);
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-function toValue(date) {
+function toValue(date: Date | null | undefined): string {
   return date ? format(date, "yyyy-MM-dd") : "";
 }
+
+type DatePickerProps = {
+  id?: string;
+  value?: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  max?: Date;
+  className?: string;
+};
 
 /**
  * Single-day picker that keeps its value as a `yyyy-MM-dd` string, so it can
@@ -27,7 +36,7 @@ export default function DatePicker({
   placeholder = "Pick a date",
   max,
   className,
-}) {
+}: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const selected = parseValue(value);
 

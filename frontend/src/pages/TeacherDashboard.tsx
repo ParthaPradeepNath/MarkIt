@@ -28,13 +28,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { firstName, getErrorMessage, greeting, initials, plural } from "@/lib/format";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  ClassInfo,
+  Student,
+  StudentSummary,
+} from "@/types";
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
-  const [classes, setClasses] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [lowAttendance, setLowAttendance] = useState([]);
-  const [todayRecords, setTodayRecords] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [lowAttendance, setLowAttendance] = useState<StudentSummary[]>([]);
+  const [todayRecords, setTodayRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -43,9 +50,9 @@ export default function TeacherDashboard() {
     setError("");
     try {
       const [classResponse, studentResponse, lowResponse] = await Promise.all([
-        api.get("/classes"),
-        api.get("/students"),
-        api.get("/reports/low-attendance"),
+        api.get<ClassInfo[]>("/classes"),
+        api.get<Student[]>("/students"),
+        api.get<StudentSummary[]>("/reports/low-attendance"),
       ]);
       setClasses(classResponse.data);
       setStudents(studentResponse.data);
@@ -55,8 +62,8 @@ export default function TeacherDashboard() {
       const days = await Promise.all(
         classResponse.data.map((cls) =>
           api
-            .get(`/attendance/class/${cls.id}?date=${today}`)
-            .catch(() => ({ data: [] }))
+            .get<AttendanceRecord[]>(`/attendance/class/${cls.id}?date=${today}`)
+            .catch(() => ({ data: [] as AttendanceRecord[] }))
         )
       );
       setTodayRecords(days.flatMap((day) => day.data));
@@ -72,7 +79,12 @@ export default function TeacherDashboard() {
   }, [load]);
 
   const todaySummary = useMemo(() => {
-    const counts = { present: 0, absent: 0, late: 0, leave: 0 };
+    const counts: Record<AttendanceStatus, number> = {
+      present: 0,
+      absent: 0,
+      late: 0,
+      leave: 0,
+    };
     todayRecords.forEach((record) => {
       if (counts[record.status] !== undefined) counts[record.status] += 1;
     });
@@ -423,7 +435,7 @@ export default function TeacherDashboard() {
   );
 }
 
-function Breakdown({ status, value }) {
+function Breakdown({ status, value }: { status: AttendanceStatus; value: number }) {
   return (
     <div>
       <p className="tnum text-[18px] leading-none font-semibold tracking-[-0.02em]">{value}</p>

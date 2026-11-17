@@ -1,10 +1,19 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import api from "../api/axios";
+import type { User } from "@/types";
 
-const AuthContext = createContext(null);
+type AuthContextValue = {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<User>;
+  logout: () => void;
+  setProfile: (updatedUser: User) => void;
+};
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,7 +23,7 @@ export function AuthProvider({ children }) {
       return;
     }
     api
-      .get("/auth/me")
+      .get<User>("/auth/me")
       .then(({ data }) => setUser(data))
       .catch(() => {
         localStorage.removeItem("token");
@@ -23,8 +32,8 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  const login = async (email: string, password: string): Promise<User> => {
+    const { data } = await api.post<{ token: string; user: User }>("/auth/login", { email, password });
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
@@ -37,7 +46,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const setProfile = (updatedUser) => {
+  const setProfile = (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
   };

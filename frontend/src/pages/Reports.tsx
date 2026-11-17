@@ -40,6 +40,16 @@ import { EvilAreaChart } from "@/components/evilcharts/charts/recharts-area-char
 import { EvilBarChart } from "@/components/evilcharts/charts/recharts-bar-chart";
 import { cn } from "@/lib/utils";
 import { formatMonth, getErrorMessage, initials, plural } from "@/lib/format";
+import type {
+  ClassInfo,
+  ClassSummary,
+  ReportData,
+  ReportTrendPoint,
+  Student,
+  StudentSummary,
+} from "@/types";
+
+type ReportTab = "class" | "batch" | "student";
 
 const TREND_CONFIG = {
   percentage: {
@@ -66,16 +76,16 @@ export default function Reports() {
   const isTeacher = user?.role === "teacher";
   const ownStudentId = user?.student?.id || user?.studentId;
 
-  const [classes, setClasses] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [batches, setBatches] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [batches, setBatches] = useState<string[]>([]);
   const [sourcesLoading, setSourcesLoading] = useState(true);
-  const [tab, setTab] = useState("class");
+  const [tab, setTab] = useState<ReportTab>("class");
   const [classId, setClassId] = useState("");
   const [batch, setBatch] = useState("");
   const [studentId, setStudentId] = useState("");
 
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -85,8 +95,8 @@ export default function Reports() {
       setSourcesLoading(true);
       try {
         const [classResponse, studentResponse] = await Promise.all([
-          api.get("/classes"),
-          api.get("/students"),
+          api.get<ClassInfo[]>("/classes"),
+          api.get<Student[]>("/students"),
         ]);
         if (cancelled) return;
         setClasses(classResponse.data);
@@ -125,7 +135,7 @@ export default function Reports() {
     setLoading(true);
     setError("");
     try {
-      const { data: response } = await api.get("/reports/attendance", { params: request });
+      const { data: response } = await api.get<ReportData>("/reports/attendance", { params: request });
       setData(response);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load this report."));
@@ -139,8 +149,8 @@ export default function Reports() {
     load();
   }, [load]);
 
-  const handleTabChange = (next) => {
-    setTab(next);
+  const handleTabChange = (next: string) => {
+    setTab(next as ReportTab);
     setStudentId("");
     setData(null);
     setError("");
@@ -148,15 +158,16 @@ export default function Reports() {
     if (next === "student" && !studentId) setStudentId(students[0]?.id || "");
   };
 
-  const viewStudent = (id) => {
+  const viewStudent = (id: string) => {
     setTab("student");
     setStudentId(id);
   };
 
   const summary = data?.summary;
+  const studentSummaries = data?.students ?? [];
   const selectedStudent = students.find((student) => student.id === studentId);
   const isStudentReport = Boolean(data?.summary && !data?.students);
-  const atRisk = (data?.students || []).filter((entry) => entry.summary.risk);
+  const atRisk = studentSummaries.filter((entry) => entry.summary.risk);
 
   const scopeLabel = isStudentReport
     ? selectedStudent?.name || (isTeacher ? "Student" : "Your report")
@@ -395,13 +406,13 @@ export default function Reports() {
             </Card>
           </div>
 
-          {!isStudentReport && data.students?.length > 0 && (
+          {!isStudentReport && studentSummaries.length > 0 && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <div>
                   <CardTitle>Student breakdown</CardTitle>
                   <p className="mt-0.5 text-[12px] text-muted-foreground">
-                    {plural(data.students.length, "student")} in {scopeLabel.toLowerCase()}
+                    {plural(studentSummaries.length, "student")} in {scopeLabel.toLowerCase()}
                   </p>
                 </div>
                 <Badge variant="secondary" className="tnum">
@@ -421,7 +432,7 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.students.map(({ student, summary: studentSummary }) => (
+                    {studentSummaries.map(({ student, summary: studentSummary }) => (
                       <TableRow key={student.id}>
                         <TableCell>
                           <div className="flex items-center gap-2.5">
@@ -486,7 +497,7 @@ export default function Reports() {
   );
 }
 
-function TrendChart({ trend }) {
+function TrendChart({ trend }: { trend: ReportTrendPoint[] }) {
   if (!trend || trend.length === 0) {
     return (
       <EmptyState
@@ -521,7 +532,7 @@ function TrendChart({ trend }) {
   );
 }
 
-function StudentBars({ students }) {
+function StudentBars({ students }: { students?: StudentSummary[] }) {
   if (!students || students.length === 0) {
     return (
       <EmptyState
@@ -561,7 +572,7 @@ function StudentBars({ students }) {
   );
 }
 
-function ClassBreakdown({ byClass }) {
+function ClassBreakdown({ byClass }: { byClass?: ClassSummary[] }) {
   if (!byClass || byClass.length === 0) {
     return (
       <EmptyState

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   CalendarDays,
@@ -51,8 +51,15 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { formatDate, getErrorMessage, initials, plural } from "@/lib/format";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  ClassInfo,
+  StatusCounts,
+  StatusFilterValue,
+} from "@/types";
 
-const STATUSES = [
+const STATUSES: Array<{ value: AttendanceStatus; label: string; dot: string }> = [
   { value: "present", label: "Present", dot: "bg-emerald-500" },
   { value: "absent", label: "Absent", dot: "bg-rose-500" },
   { value: "late", label: "Late", dot: "bg-amber-500" },
@@ -61,16 +68,16 @@ const STATUSES = [
 
 export default function Attendance() {
   const confirm = useConfirm();
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [classesLoading, setClassesLoading] = useState(true);
   const [classId, setClassId] = useState("all");
   const [date, setDate] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("all");
   const [query, setQuery] = useState("");
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [edit, setEdit] = useState(null);
+  const [edit, setEdit] = useState<AttendanceRecord | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadRecords = useCallback(async () => {
@@ -80,7 +87,7 @@ export default function Attendance() {
     setLoading(true);
     setError("");
     try {
-      const params = {};
+      const params: Record<string, string> = {};
       if (date) params.date = date;
 
       if (classId !== "all") {
@@ -113,8 +120,8 @@ export default function Attendance() {
     loadRecords();
   }, [loadRecords]);
 
-  const counts = useMemo(() => {
-    const next = { all: records.length, present: 0, absent: 0, late: 0, leave: 0 };
+  const counts = useMemo<StatusCounts>(() => {
+    const next: StatusCounts = { all: records.length, present: 0, absent: 0, late: 0, leave: 0 };
     records.forEach((record) => {
       if (next[record.status] !== undefined) next[record.status] += 1;
     });
@@ -135,8 +142,9 @@ export default function Attendance() {
   const presentCount = counts.present + counts.late;
   const percentage = counts.all ? Math.round((presentCount / counts.all) * 100) : null;
 
-  const saveEdit = async (event) => {
+  const saveEdit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!edit) return;
     setSaving(true);
     try {
       await api.put(`/attendance/${edit.id}`, {
@@ -153,7 +161,7 @@ export default function Attendance() {
     }
   };
 
-  const remove = async (record) => {
+  const remove = async (record: AttendanceRecord) => {
     const ok = await confirm({
       title: "Delete this record?",
       description: `${record.student?.name || "This student"}'s attendance on ${formatDate(
@@ -403,7 +411,7 @@ export default function Attendance() {
                       <button
                         key={status.value}
                         type="button"
-                        onClick={() => setEdit((previous) => ({ ...previous, status: status.value }))}
+                        onClick={() => setEdit((previous) => ({ ...previous!, status: status.value }))}
                         aria-pressed={active}
                         className={cn(
                           "flex h-9 cursor-pointer items-center gap-2 rounded-lg border px-3 text-[13px] font-medium outline-none transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:ring-ring/30",
@@ -425,7 +433,7 @@ export default function Attendance() {
                   id="correction-remark"
                   value={edit?.remark || ""}
                   onChange={(event) =>
-                    setEdit((previous) => ({ ...previous, remark: event.target.value }))
+                    setEdit((previous) => ({ ...previous!, remark: event.target.value }))
                   }
                   placeholder="Reason for correction"
                 />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTheme } from "next-themes";
 import {
   BadgeCheck,
@@ -64,11 +64,11 @@ export default function Profile() {
 
   const dirty = name.trim() !== (user?.name || "") || (isStudent && phone !== (user?.student?.guardianPhone || ""));
 
-  const saveProfile = async (event) => {
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     try {
-      const payload = { name: name.trim() };
+      const payload: { name: string; guardianPhone?: string } = { name: name.trim() };
       if (isStudent) payload.guardianPhone = phone;
       const { data } = await api.put("/auth/profile", payload);
       setProfile(data);
@@ -86,7 +86,7 @@ export default function Profile() {
     setPwOpen(true);
   };
 
-  const changePassword = async (event) => {
+  const changePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pw.newPassword.length < 6) {
       toast.error("Choose a longer password", {

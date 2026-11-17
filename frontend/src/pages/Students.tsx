@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   BookOpen,
   Loader2,
@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getErrorMessage, initials, plural } from "@/lib/format";
+import type { ClassInfo, Student } from "@/types";
 
 const emptyForm = {
   name: "",
@@ -60,8 +61,8 @@ const emptyForm = {
 
 export default function Students() {
   const confirm = useConfirm();
-  const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -70,8 +71,8 @@ export default function Students() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [enrollTarget, setEnrollTarget] = useState(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [enrollTarget, setEnrollTarget] = useState<Student | null>(null);
   const [enrollClassId, setEnrollClassId] = useState("");
   const [enrolling, setEnrolling] = useState(false);
 
@@ -80,8 +81,8 @@ export default function Students() {
     setError("");
     try {
       const [studentResponse, classResponse] = await Promise.all([
-        api.get("/students"),
-        api.get("/classes"),
+        api.get<Student[]>("/students"),
+        api.get<ClassInfo[]>("/classes"),
       ]);
       setStudents(studentResponse.data);
       setClasses(classResponse.data);
@@ -118,7 +119,7 @@ export default function Students() {
     setOpen(true);
   };
 
-  const openEdit = (student) => {
+  const openEdit = (student: Student) => {
     setEditId(student.id);
     setForm({
       name: student.name,
@@ -132,7 +133,7 @@ export default function Students() {
     setOpen(true);
   };
 
-  const submit = async (event) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     try {
@@ -152,7 +153,7 @@ export default function Students() {
     }
   };
 
-  const remove = async (student) => {
+  const remove = async (student: Student) => {
     const ok = await confirm({
       title: `Delete ${student.name}?`,
       description:
@@ -169,7 +170,7 @@ export default function Students() {
     }
   };
 
-  const openEnroll = (student) => {
+  const openEnroll = (student: Student) => {
     setEnrollTarget(student);
     setEnrollClassId(student.class?.id || student.classId || "");
   };
@@ -336,7 +337,7 @@ export default function Students() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {student.class?.name ? (
-                        <span className="text-[13px]">{student.className.name}</span>
+                        <span className="text-[13px]">{student.class?.name}</span>
                       ) : (
                         <span className="text-[12px] text-muted-foreground">Not enrolled</span>
                       )}

@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
+type AttendanceRingProps = {
+  value?: number | string | null;
+  size?: number;
+  stroke?: number;
+  label?: string;
+  className?: string;
+  tone?: "auto" | "danger" | "primary";
+};
+
 /**
  * Signature attendance ring. Animates its stroke once on mount,
  * then transitions smoothly whenever the value changes.
@@ -13,7 +22,7 @@ export default function AttendanceRing({
   label,
   className,
   tone = "auto",
-}) {
+}: AttendanceRingProps) {
   const reduce = useReducedMotion();
   const [progress, setProgress] = useState(reduce ? Number(value) || 0 : 0);
   const hasValue = value !== null && value !== undefined && Number.isFinite(Number(value));

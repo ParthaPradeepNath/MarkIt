@@ -12,11 +12,14 @@ import {
   Music,
   Palette,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Keyword → icon + tint. Order matters: first match wins, so broader
 // families (e.g. chemistry before biology for "biochemistry") come first.
-const SUBJECTS = [
+type SubjectMeta = { icon: LucideIcon; text: string; tile: string };
+
+const SUBJECTS: Array<SubjectMeta & { match: string[] }> = [
   {
     match: ["math", "algebra", "geometry", "calculus", "trig", "statistic", "arithmetic"],
     icon: Calculator,
@@ -96,13 +99,13 @@ const SUBJECTS = [
   },
 ];
 
-const FALLBACK = {
+const FALLBACK: SubjectMeta = {
   icon: BookOpen,
   text: "text-primary",
   tile: "bg-primary/[0.08] ring-primary/10",
 };
 
-function getSubjectMeta(subject, name) {
+function getSubjectMeta(subject?: string | null, name?: string | null): SubjectMeta {
   const values = [subject, name].filter(Boolean).map((value) => String(value).toLowerCase());
 
   for (const value of values) {
@@ -119,6 +122,15 @@ function getSubjectMeta(subject, name) {
  * the glyph for tight spots like select options. Purely decorative — the class
  * name is always rendered as text too.
  */
+type SubjectIconProps = {
+  subject?: string | null;
+  name?: string | null;
+  className?: string;
+  iconClassName?: string;
+  strokeWidth?: number;
+  plain?: boolean;
+};
+
 export default function SubjectIcon({
   subject,
   name,
@@ -126,7 +138,7 @@ export default function SubjectIcon({
   iconClassName,
   strokeWidth = 1.75,
   plain = false,
-}) {
+}: SubjectIconProps) {
   const { icon: Icon, text, tile } = getSubjectMeta(subject, name);
 
   if (plain) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -41,7 +41,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async (event) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     try {
@@ -56,7 +56,7 @@ export default function Login() {
     }
   };
 
-  const fill = (email, password) => setForm({ email, password });
+  const fill = (email: string, password: string) => setForm({ email, password });
 
   return (
     <div className="theme-fade relative min-h-dvh overflow-hidden bg-background dark:bg-[#121212]">

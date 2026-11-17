@@ -40,8 +40,19 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { getErrorMessage, initials, plural } from "@/lib/format";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  ClassInfo,
+  Student,
+} from "@/types";
 
-const STATUSES = [
+const STATUSES: Array<{
+  value: AttendanceStatus;
+  label: string;
+  icon: typeof Check;
+  active: string;
+}> = [
   {
     value: "present",
     label: "Present",
@@ -71,13 +82,13 @@ const STATUSES = [
 const today = () => format(new Date(), "yyyy-MM-dd");
 
 export default function MarkAttendance() {
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [classId, setClassId] = useState("");
   const [date, setDate] = useState(today());
-  const [students, setStudents] = useState([]);
-  const [statusMap, setStatusMap] = useState({});
-  const [remarkMap, setRemarkMap] = useState({});
-  const [existing, setExisting] = useState({});
+  const [students, setStudents] = useState<Student[]>([]);
+  const [statusMap, setStatusMap] = useState<Record<string, AttendanceStatus>>({});
+  const [remarkMap, setRemarkMap] = useState<Record<string, string>>({});
+  const [existing, setExisting] = useState<Record<string, AttendanceStatus>>({});
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(false);
@@ -91,7 +102,7 @@ export default function MarkAttendance() {
     setLoadingClasses(true);
     setError("");
     try {
-      const { data } = await api.get("/classes");
+      const { data } = await api.get<ClassInfo[]>("/classes");
       setClasses(data);
       setClassId((current) => current || data[0]?.id || "");
     } catch (err) {
@@ -116,7 +127,7 @@ export default function MarkAttendance() {
     setRemarkMap({});
     setDirty(false);
     api
-      .get(`/classes/${classId}`)
+      .get<ClassInfo>(`/classes/${classId}`)
       .then(({ data }) => setStudents(data.students || []))
       .catch((err) => toast.error(getErrorMessage(err, "Could not load class students.")))
       .finally(() => setLoadingStudents(false));
@@ -126,10 +137,10 @@ export default function MarkAttendance() {
     if (!classId || !date) return;
     setLoadingExisting(true);
     api
-      .get(`/attendance/class/${classId}`, { params: { date } })
+      .get<AttendanceRecord[]>(`/attendance/class/${classId}`, { params: { date } })
       .then(({ data }) => {
-        const statuses = {};
-        const remarks = {};
+        const statuses: Record<string, AttendanceStatus> = {};
+        const remarks: Record<string, string> = {};
         data.forEach((record) => {
           const id = record.student?.id;
           if (!id) return;
@@ -151,7 +162,12 @@ export default function MarkAttendance() {
   }, [classId, date]);
 
   const summary = useMemo(() => {
-    const counts = { present: 0, absent: 0, late: 0, leave: 0 };
+    const counts: Record<AttendanceStatus, number> = {
+      present: 0,
+      absent: 0,
+      late: 0,
+      leave: 0,
+    };
     Object.values(statusMap).forEach((status) => {
       if (counts[status] !== undefined) counts[status] += 1;
     });
@@ -167,7 +183,7 @@ export default function MarkAttendance() {
 
   const allSet = students.length > 0 && students.every((student) => statusMap[student.id]);
 
-  const markAll = (status) => {
+  const markAll = (status: AttendanceStatus) => {
     setStatusMap((previous) => {
       const next = { ...previous };
       students.forEach((student) => {
@@ -181,7 +197,7 @@ export default function MarkAttendance() {
   const reset = () => {
     setStatusMap(existing);
     setRemarkMap((previous) => {
-      const next = {};
+      const next: Record<string, string> = {};
       students.forEach((student) => {
         next[student.id] = existing[student.id] ? previous[student.id] || "" : "";
       });

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { AttendanceStatus } from "@/types";
 
 const config = {
   present: {
@@ -19,7 +20,13 @@ const config = {
   },
 };
 
-export default function StatusBadge({ status, label, className }) {
+type StatusBadgeProps = {
+  status: AttendanceStatus;
+  label?: string;
+  className?: string;
+};
+
+export default function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const c = config[status] || config.present;
   return (
     <span

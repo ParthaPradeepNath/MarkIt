@@ -7,8 +7,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
+type TimeSlot = { hours: number; mins: number; label: string };
+
+type SchedulePickerProps = {
+  id?: string;
+  date?: Date | null;
+  time?: string;
+  onDateChange: (date: Date | null) => void;
+  onTimeChange: (time: string) => void;
+  placeholder?: string;
+  className?: string;
+};
+
 // Half-hour slots from 07:00 to 21:30, shown as 12-hour labels.
-const TIME_SLOTS = Array.from({ length: 30 }, (_, index) => {
+const TIME_SLOTS: TimeSlot[] = Array.from({ length: 30 }, (_, index) => {
   const minutes = 7 * 60 + index * 30;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -33,12 +45,12 @@ export default function SchedulePicker({
   onTimeChange,
   placeholder = "Pick a day & time",
   className,
-}) {
+}: SchedulePickerProps) {
   const [open, setOpen] = useState(false);
   const now = new Date();
 
-  const isPastSlot = (slot) =>
-    Boolean(date) &&
+  const isPastSlot = (slot: TimeSlot) =>
+    date != null &&
     isSameDay(date, now) &&
     (slot.hours < now.getHours() ||
       (slot.hours === now.getHours() && slot.mins <= now.getMinutes()));

@@ -1,14 +1,29 @@
 import { cn } from "@/lib/utils";
+import type { StatusFilterValue } from "@/types";
 
-export const STATUS_OPTIONS = [
+type StatusOption = { value: StatusFilterValue; label: string; dot?: string };
+
+export const STATUS_OPTIONS: StatusOption[] = [
   { value: "present", label: "Present", dot: "bg-emerald-500" },
   { value: "absent", label: "Absent", dot: "bg-rose-500" },
   { value: "late", label: "Late", dot: "bg-amber-500" },
   { value: "leave", label: "Leave", dot: "bg-sky-500" },
 ];
 
-export default function StatusFilter({ value = "all", onChange, counts, className }) {
-  const options = [{ value: "all", label: "All" }, ...STATUS_OPTIONS];
+type StatusFilterProps = {
+  value?: StatusFilterValue;
+  onChange: (value: StatusFilterValue) => void;
+  counts?: Partial<Record<string, number>>;
+  className?: string;
+};
+
+export default function StatusFilter({
+  value = "all",
+  onChange,
+  counts,
+  className,
+}: StatusFilterProps) {
+  const options: StatusOption[] = [{ value: "all", label: "All" }, ...STATUS_OPTIONS];
 
   return (
     <div

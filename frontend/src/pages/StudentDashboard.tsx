@@ -26,6 +26,14 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EvilAreaChart } from "@/components/evilcharts/charts/recharts-area-chart";
 import { firstName, formatDate, formatMonth, getErrorMessage, greeting } from "@/lib/format";
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  ClassSummary,
+  ReportData,
+  ReportSummary,
+  ReportTrendPoint,
+} from "@/types";
 
 const TREND_CONFIG = {
   percentage: {
@@ -39,8 +47,8 @@ const TREND_CONFIG = {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const [report, setReport] = useState(null);
-  const [recent, setRecent] = useState([]);
+  const [report, setReport] = useState<ReportData | null>(null);
+  const [recent, setRecent] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -55,8 +63,8 @@ export default function StudentDashboard() {
     setError("");
     try {
       const [reportResponse, recordsResponse] = await Promise.all([
-        api.get("/reports/attendance", { params: { type: "student", studentId } }),
-        api.get(`/attendance/student/${studentId}`),
+        api.get<ReportData>("/reports/attendance", { params: { type: "student", studentId } }),
+        api.get<AttendanceRecord[]>(`/attendance/student/${studentId}`),
       ]);
       setReport(reportResponse.data);
       setRecent(recordsResponse.data.slice(0, 6));
@@ -71,9 +79,9 @@ export default function StudentDashboard() {
     load();
   }, [load]);
 
-  const summary = report?.summary || {};
-  const trend = report?.trend || [];
-  const byClass = report?.byClass || [];
+  const summary: Partial<ReportSummary> = report?.summary ?? {};
+  const trend: ReportTrendPoint[] = report?.trend ?? [];
+  const byClass: ClassSummary[] = report?.byClass ?? [];
   const hasRecords = (summary.total || 0) > 0;
   const risk = Boolean(summary.risk);
 
@@ -340,7 +348,15 @@ export default function StudentDashboard() {
   );
 }
 
-function MiniStat({ status, label, value }) {
+function MiniStat({
+  status,
+  label,
+  value,
+}: {
+  status: AttendanceStatus;
+  label?: string;
+  value: number;
+}) {
   return (
     <div className="flex items-center gap-2 sm:flex-col sm:items-start sm:gap-1.5">
       <StatusBadge status={status} label={label} />

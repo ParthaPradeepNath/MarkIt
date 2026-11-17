@@ -4,6 +4,7 @@ import AttendanceRing from "@/components/AttendanceRing";
 import StatusBadge from "@/components/StatusBadge";
 import SubjectIcon from "@/components/SubjectIcon";
 import { cn } from "@/lib/utils";
+import type { AttendanceStatus } from "@/types";
 
 /**
  * A still product shot for the login brand panel: a cropped miniature of the
@@ -11,13 +12,13 @@ import { cn } from "@/lib/utils";
  * shares one grid so avatars, names and statuses line up, with an even inset
  * around the whole card.
  */
-const rollCall = [
+const rollCall: Array<{ name: string; roll: string; status: AttendanceStatus; tone: string }> = [
   { name: "Arjun Sharma", roll: "B01", status: "present", tone: "bg-sky-500/15 text-sky-600 dark:text-sky-400" },
   { name: "Priya Patel", roll: "B02", status: "present", tone: "bg-violet-500/15 text-violet-600 dark:text-violet-400" },
   { name: "Rahul Verma", roll: "B03", status: "late", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
 ];
 
-export default function LoginMockup({ className }) {
+export default function LoginMockup({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
