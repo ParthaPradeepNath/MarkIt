@@ -1,29 +1,60 @@
 # MarkIt backend
 
-## Database
+Express REST API backed by PostgreSQL on Neon through Prisma ORM.
 
-The server connects to `MONGO_URI` from `backend/.env` first. The current value
-points at a MongoDB Atlas cluster whose hostname no longer resolves
-(`markit.rvetrjb.mongodb.net`), so in development the server automatically
-falls back to a **local, persistent MongoDB** instead of crashing or silently
-buffering writes.
+## Setup
 
-- Data folder: `backend/.data/mongo` (git-ignored)
-- Local connection: `mongodb://127.0.0.1:27017/markit`
-- Seed data: `npm run seed`
-- Active database: `GET /api/health` returns `db.local`, `db.name`, and `db.host`
+1. Copy `.env.example` to `.env` and set at least:
 
-The fallback is only used when `NODE_ENV` is not `production`. Set
-`DISABLE_LOCAL_DB=1` to disable it and fail fast instead.
+   ```dotenv
+   DATABASE_URL="postgresql://<user>:<password>@<host>-pooler.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require"
+   JWT_SECRET=change_me
+   JWT_EXPIRES_IN=7d
+   ```
 
-To go back to Atlas, open `backend/.env` and replace `MONGO_URI` with the
-current connection string from MongoDB Atlas (Cluster → Connect → Drivers).
-Any valid `mongodb+srv://...` URI takes precedence over the local database.
+   Use Neon's **pooled** connection string for `DATABASE_URL`. Prisma 5.10+
+   handles pooling, so a separate unpooled URL is not required. Keep `.env`
+   out of git — only `.env.example` is committed.
+
+2. Install dependencies and apply the schema:
+
+   ```bash
+   npm install
+   npm run prisma:migrate   # creates/updates tables in Neon
+   ```
+
+3. Load demo data and start the API:
+
+   ```bash
+   npm run seed
+   npm run dev              # http://localhost:5000
+   ```
+
+`GET /api/health` reports the database state, provider and ORM.
+
+## Data model
+
+The source of truth is `prisma/schema.prisma`; committed migrations live in
+`prisma/migrations/`. Key constraints:
+
+- unique `User.email` and `Student.email`
+- `Attendance` has a unique `(classId, studentId, date)` key so marking the
+  same day twice upserts instead of duplicating
+- `Student.classId` is the single source of truth for class membership;
+  `Class.students` is its inverse relation
+- removing a class clears `Student.classId` and deletes that class's
+  attendance; removing a student deletes their login and attendance records
+
+Passwords are hashed with bcrypt in `lib/user.js` before they reach Prisma —
+there is no ORM `pre-save` hook.
 
 ## Scripts
 
-```bash
-npm run dev    # start the API with file watching
-npm run start  # start the API
-npm run seed   # clear and re-create the demo teacher, students and attendance
-```
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the API with file watching |
+| `npm run start` | Start the API |
+| `npm run seed` | Clear and recreate demo teacher, students, classes and attendance |
+| `npm run prisma:generate` | Regenerate Prisma Client after schema edits |
+| `npm run prisma:migrate` | Create/apply a migration in development |
+| `npm run prisma:studio` | Browse the database with Prisma Studio |

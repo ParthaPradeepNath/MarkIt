@@ -4,7 +4,7 @@
 Attendance Management System
 
 ## Project Description
-An end-to-end MERN application that lets **teachers** manage classroom attendance digitally. Teachers can create classes, enroll students, record daily attendance, correct past records, and view comprehensive student and batch-level attendance reports. Students get a read-only dashboard to track their own attendance status.
+An end-to-end React + Express application backed by PostgreSQL (Neon) through Prisma ORM that lets **teachers** manage classroom attendance digitally. Teachers can create classes, enroll students, record daily attendance, correct past records, and view comprehensive student and batch-level attendance reports. Students get a read-only dashboard to track their own attendance status.
 
 **Impact:** Eliminates manual attendance registers, reduces errors, saves teacher time, and provides instant attendance analytics.
 
@@ -15,72 +15,84 @@ An end-to-end MERN application that lets **teachers** manage classroom attendanc
 ## Tech Stack
 | Layer      | Technology                          |
 |------------|-------------------------------------|
-| Frontend   | React (Vite / CRA), Chart.js        |
+| Frontend   | React + Vite                        |
 | Backend    | Node.js + Express                   |
-| Database   | MongoDB (Mongoose ODM)              |
+| Database   | PostgreSQL (Neon) + Prisma ORM      |
 | Auth       | JWT (JSON Web Tokens) + bcrypt      |
-| Charts     | Chart.js (attendance trend reports) |
+| Charts     | Recharts (attendance trend reports) |
 
 ---
 
-## Database Schema (MongoDB Collections)
+## Database Schema (PostgreSQL / Prisma)
 
-### 1. `users`
-Stores teachers and students who can log in.
+The authoritative schema lives in `backend/prisma/schema.prisma` and is applied
+with Prisma Migrate. IDs are `cuid()` strings; relations are explicit.
 
-```js
-{
-  name: String,
-  email: String,          // unique
-  password: String,       // hashed (bcrypt)
-  role: "teacher" | "student",
-  studentId: ObjectId,    // ref: "students" (only if role = student)
-  createdAt: Date
+### 1. `User`
+Teachers and students who can log in.
+
+```prisma
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String              // bcrypt hash
+  role      Role                 // teacher | student
+  studentId String?  @unique
+  student   Student? @relation(fields: [studentId], references: [id])
+  // ...timestamps and back-relations
 }
 ```
 
-### 2. `students`
-Profile details of enrolled students.
+### 2. `Student`
+Profile details of enrolled students. One class per student via `classId`.
 
-```js
-{
-  name: String,
-  email: String,
-  rollNumber: String,        // unique per batch
-  batch: String,             // e.g., "Batch A", "2024-25"
-  className: ObjectId,       // ref: "classes"
-  guardianPhone: String,
-  createdAt: Date
+```prisma
+model Student {
+  id            String  @id @default(cuid())
+  name          String
+  email         String  @unique
+  rollNumber    String
+  batch         String
+  classId       String?
+  class         Class?  @relation(fields: [classId], references: [id])
+  guardianPhone String?
+  // ...timestamps and back-relations
 }
 ```
 
-### 3. `classes`
-Classes created by teachers.
+### 3. `Class`
+Classes created by teachers. Enrolled students are the inverse of
+`Student.class`, exposed as `students`.
 
-```js
-{
-  name: String,              // e.g., "Mathematics 101"
-  subject: String,
-  batch: String,
-  teacherId: ObjectId,       // ref: "users"
-  schedule: String,          // e.g., "Mon/Wed/Fri 10 AM"
-  enrolledStudents: [ObjectId]  // ref: "students"
+```prisma
+model Class {
+  id        String   @id @default(cuid())
+  name      String
+  subject   String
+  batch     String
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  schedule  String?
+  students  Student[]
+  // ...timestamps and back-relations
 }
 ```
 
-### 4. `attendance`
-Daily attendance records (one record per student per class/date).
+### 4. `Attendance`
+Daily attendance records (one record per student per class per day).
 
-```js
-{
-  classId: ObjectId,         // ref: "classes"
-  studentId: ObjectId,       // ref: "students"
-  date: Date,
-  status: "present" | "absent" | "late" | "leave",
-  markedBy: ObjectId,        // ref: "users" (teacher)
-  remark: String,
-  createdAt: Date,
-  updatedAt: Date
+```prisma
+model Attendance {
+  id         String          @id @default(cuid())
+  classId    String
+  studentId  String
+  date       DateTime        @db.Date
+  status     AttendanceStatus // present | absent | late | leave
+  markedById String
+  remark     String?
+  @@unique([classId, studentId, date])
+  // ...timestamps and relations
 }
 ```
 
@@ -141,13 +153,13 @@ Authorization: Bearer <JWT>
 |---------------------|-----------------------------------------------------------------------------|
 | Login               | JWT-based login; role-based redirect (teacher → dashboard, student → dashboard) |
 | Teacher Dashboard   | Overview: class stats, today's attendance, quick actions, low-attendance alerts |
-| Student Dashboard   | Personal attendance percentage, monthly trend chart (Chart.js)              |
+| Student Dashboard   | Personal attendance percentage, monthly trend chart (Recharts)              |
 | Students            | List/enroll students, filter by class or batch                              |
 | Classes             | List/create classes, view enrolled students                                 |
 | Attendance          | Records view + filter by class/date/status                                  |
 | Mark Attendance     | Per-class daily marking UI (bulk present/absent toggles)                    |
 | Attendance History  | Per-student or per-class history with corrections                           |
-| Reports             | Attendance reports with Chart.js visualizations (student, batch, class)     |
+| Reports             | Attendance reports with Recharts visualizations (student, batch, class)     |
 | Profile             | View/edit own profile, change password                                      |
 
 ---
@@ -157,12 +169,11 @@ Authorization: Bearer <JWT>
 ```
 markit/
 ├── backend/
-│   ├── config/db.js
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Student.js
-│   │   ├── Class.js
-│   │   └── Attendance.js
+│   ├── config/db.js          # Prisma client + connection helpers
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
+│   ├── lib/user.js           # password hashing helpers
 │   ├── middleware/auth.js
 │   ├── routes/
 │   │   ├── auth.js
@@ -177,7 +188,8 @@ markit/
 │   │   ├── attendanceController.js
 │   │   └── reportController.js
 │   ├── server.js
-│   └── .env          # PORT, MONGO_URI, JWT_SECRET
+│   ├── seed.js       # demo data (npm run seed)
+│   └── .env          # DATABASE_URL, PORT, JWT_SECRET
 └── frontend/
     ├── src/
     │   ├── api/          # axios service + auth interceptor
@@ -209,7 +221,7 @@ markit/
 - [ ] Bulk daily attendance marking per class
 - [ ] Edit/correct attendance records (PUT `/api/attendance/:id`)
 - [ ] Student attendance history view
-- [ ] Reports with Chart.js (per-student %, batch-wise %, trend line)
+- [ ] Reports with Recharts (per-student %, batch-wise %, trend line)
 - [ ] Protected routes + role guards on frontend
 
 ---
