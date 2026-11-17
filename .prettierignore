@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+build
+coverage
+public
+*.lock
+
+# Project-specific
+backend/generated
+backend/.env
+frontend/.env
