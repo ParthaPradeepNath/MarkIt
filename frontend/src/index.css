@@ -196,6 +196,15 @@
     min-height: 100dvh;
   }
 
+  /* The page ground eases between themes; no layout or transform properties. */
+  html,
+  body,
+  #root {
+    transition-property: background-color, color;
+    transition-duration: 260ms;
+    transition-timing-function: var(--ease-out);
+  }
+
   h1,
   h2,
   h3,
@@ -333,6 +342,39 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* One soft, token-based wash that separates the brand zone from the form.
+   Bleeds off the viewport edges; never a plate behind the content. */
+@utility brand-wash {
+  background-image: radial-gradient(72% 78% at 12% 30%, var(--primary), transparent 72%);
+}
+
+/* Applied to token-painted surfaces so the whole app crossfades with the page. */
+@utility theme-fade {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease-out);
+}
+
+/* Sonner injects its own styles, so these parts need !important to win. */
+.cn-toast {
+  border-radius: 14px !important;
+  box-shadow: var(--elevation-float) !important;
+  padding: 13px 16px !important;
+}
+
+.cn-toast-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.cn-toast-description {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  opacity: 0.8 !important;
+  margin-top: 3px !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-enter,
   .stagger-in > * {
@@ -349,5 +391,13 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  /* Keep the color change, drop the sense of movement. */
+  html,
+  body,
+  #root,
+  .theme-fade {
+    transition-duration: 1ms;
   }
 }

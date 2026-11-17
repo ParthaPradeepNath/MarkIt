@@ -52,7 +52,6 @@ export default function Profile() {
   const [pwOpen, setPwOpen] = useState(false);
   const [pw, setPw] = useState({ currentPassword: "", newPassword: "", confirm: "" });
   const [pwSaving, setPwSaving] = useState(false);
-  const [pwError, setPwError] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -83,20 +82,22 @@ export default function Profile() {
 
   const openPassword = () => {
     setPw({ currentPassword: "", newPassword: "", confirm: "" });
-    setPwError("");
     setShowPw(false);
     setPwOpen(true);
   };
 
   const changePassword = async (event) => {
     event.preventDefault();
-    setPwError("");
     if (pw.newPassword.length < 6) {
-      setPwError("New password must be at least 6 characters.");
+      toast.error("Choose a longer password", {
+        description: "Your new password needs at least 6 characters.",
+      });
       return;
     }
     if (pw.newPassword !== pw.confirm) {
-      setPwError("Passwords do not match.");
+      toast.error("Passwords don't match", {
+        description: "Re-enter your new password in both fields.",
+      });
       return;
     }
     setPwSaving(true);
@@ -109,7 +110,9 @@ export default function Profile() {
       setPwOpen(false);
       setPw({ currentPassword: "", newPassword: "", confirm: "" });
     } catch (err) {
-      setPwError(getErrorMessage(err, "Failed to change password."));
+      toast.error("Couldn't change your password", {
+        description: getErrorMessage(err, "Please try again in a moment."),
+      });
     } finally {
       setPwSaving(false);
     }
@@ -303,14 +306,6 @@ export default function Profile() {
           </DialogHeader>
           <form onSubmit={changePassword}>
             <div className="space-y-3">
-              {pwError && (
-                <div
-                  role="alert"
-                  className="rounded-lg bg-destructive/[0.07] px-3 py-2 text-[12px] leading-snug text-destructive ring-1 ring-destructive/15"
-                >
-                  {pwError}
-                </div>
-              )}
               <div className="space-y-1.5">
                 <Label htmlFor="current-password">Current password</Label>
                 <Input

@@ -148,11 +148,11 @@ export default function AppLayout() {
   );
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="theme-fade min-h-dvh bg-background">
       <div className="flex min-h-dvh">
         <aside
           className={cn(
-            "sticky top-0 hidden h-dvh shrink-0 overflow-hidden border-r border-sidebar-border transition-[width] duration-300 ease-[var(--ease-out)] md:block",
+            "sticky top-0 hidden h-dvh shrink-0 overflow-hidden border-r border-sidebar-border transition-[width,background-color,border-color,color] duration-300 ease-[var(--ease-out)] md:block",
             collapsed ? "w-[72px]" : "w-[256px]"
           )}
         >
@@ -167,7 +167,7 @@ export default function AppLayout() {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl backdrop-saturate-150 md:px-5">
+          <header className="theme-fade sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl backdrop-saturate-150 md:px-5">
             <Button
               variant="secondary"
               size="icon"
@@ -230,7 +230,7 @@ export default function AppLayout() {
             </div>
           </header>
 
-          <main className="flex-1 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 dark:bg-muted/10">
+          <main className="theme-fade flex-1 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 dark:bg-muted/10">
             <div className="mx-auto w-full max-w-[1140px]">
               <div key={location.pathname} className="page-enter">
                 <Outlet />

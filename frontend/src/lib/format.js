@@ -1,7 +1,29 @@
 import { format } from "date-fns";
 
+// Raw axios/server strings are for logs, not for people. Map the ones we know
+// to plain language, and never let technical noise reach the screen.
+const friendlyErrors = [
+  [/invalid email or password|invalid credentials/i, "That email or password doesn't look right. Please try again."],
+  [/current password is incorrect/i, "Your current password isn't correct. Please try again."],
+  [/already exists|duplicate/i, "Something with those details already exists. Try different information."],
+  [/not authorized|unauthorized|token failed|jwt malformed/i, "Your session has expired. Please sign in again."],
+  [/forbidden|not permitted/i, "You don't have permission to do that."],
+  [/route not found|not found/i, "We couldn't find what you were looking for."],
+  [/network error|networkerror|failed to fetch|econnrefused|enotfound|getaddrinfo/i, "We couldn't reach the server. Check your connection and try again."],
+  [/timeout|timed out|etimedout/i, "The request took too long. Please try again."],
+  [/ssl|tls|certificate|mongo|database/i, "We're having trouble connecting right now. Please try again shortly."],
+  [/status code 500|internal server error/i, "Something went wrong on our end. Please try again in a moment."],
+  [/status code 503|service unavailable/i, "The service is temporarily unavailable. Please try again shortly."],
+];
+
+const looksTechnical = (message) =>
+  /error:|status code|^\s*at\s|econn|enotfound|getaddrinfo|mongo|ssl|tls|certificate/i.test(message);
+
 export function getErrorMessage(error, fallback = "Something went wrong. Please try again.") {
-  return error?.response?.data?.message || error?.message || fallback;
+  const raw = error?.response?.data?.message || error?.message || "";
+  const friendly = friendlyErrors.find(({ pattern }) => pattern.test(raw));
+  if (friendly) return friendly;
+  return raw && !looksTechnical(raw) ? raw : fallback;
 }
 
 export function initials(name = "U") {

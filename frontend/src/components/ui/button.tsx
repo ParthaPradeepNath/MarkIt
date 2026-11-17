@@ -13,7 +13,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-[#3b82f6] bg-[linear-gradient(to_bottom,#3b82f6,#2563eb)] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.25),0_2px_6px_rgba(37,99,235,0.35)] transition-[color,box-shadow,background-color,border-color,transform] duration-200 ease-out enabled:hover:-translate-y-px enabled:hover:border-[#2563eb] enabled:hover:bg-[linear-gradient(to_bottom,#2563eb,#1d4ed8)] enabled:hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_4px_12px_rgba(37,99,235,0.5)] enabled:active:translate-y-0 enabled:active:bg-[linear-gradient(to_bottom,#1d4ed8,#1d4ed8)]",
+          "border border-[#3b82f6] bg-[#2563eb] bg-[linear-gradient(to_bottom,#3b82f6,#2563eb)] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.25),0_2px_6px_rgba(37,99,235,0.35)] transition-[color,box-shadow,background-color,border-color,transform] duration-200 ease-out enabled:hover:-translate-y-px enabled:hover:bg-[#1d4ed8] enabled:hover:bg-[linear-gradient(to_bottom,#2563eb,#1d4ed8)] enabled:hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_4px_12px_rgba(37,99,235,0.5)] enabled:active:translate-y-0",
         outline: whiteButton,
         secondary: whiteButton,
         ghost:
