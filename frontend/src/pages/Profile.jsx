@@ -46,7 +46,7 @@ export default function Profile() {
   const { theme, setTheme } = useTheme();
 
   const [name, setName] = useState(user?.name || "");
-  const [phone, setPhone] = useState(user?.studentId?.guardianPhone || "");
+  const [phone, setPhone] = useState(user?.student?.guardianPhone || "");
   const [saving, setSaving] = useState(false);
 
   const [pwOpen, setPwOpen] = useState(false);
@@ -63,7 +63,7 @@ export default function Profile() {
     setMounted(true);
   }, []);
 
-  const dirty = name.trim() !== (user?.name || "") || (isStudent && phone !== (user?.studentId?.guardianPhone || ""));
+  const dirty = name.trim() !== (user?.name || "") || (isStudent && phone !== (user?.student?.guardianPhone || ""));
 
   const saveProfile = async (event) => {
     event.preventDefault();
@@ -117,11 +117,11 @@ export default function Profile() {
 
   const meta = isStudent
     ? [
-        { label: "Roll number", value: user?.studentId?.rollNumber || "—" },
-        { label: "Batch", value: user?.studentId?.batch || "—" },
+        { label: "Roll number", value: user?.student?.rollNumber || "—" },
+        { label: "Batch", value: user?.student?.batch || "—" },
         {
           label: "Class",
-          value: user?.studentId?.className?.name || user?.className || "Not enrolled",
+          value: user?.student?.class?.name || "Not enrolled",
         },
       ]
     : [

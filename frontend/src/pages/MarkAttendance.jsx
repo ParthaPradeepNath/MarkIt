@@ -85,7 +85,7 @@ export default function MarkAttendance() {
   const [error, setError] = useState("");
   const [dirty, setDirty] = useState(false);
 
-  const activeClass = classes.find((cls) => cls._id === classId);
+  const activeClass = classes.find((cls) => cls.id === classId);
 
   const loadClasses = useCallback(async () => {
     setLoadingClasses(true);
@@ -93,7 +93,7 @@ export default function MarkAttendance() {
     try {
       const { data } = await api.get("/classes");
       setClasses(data);
-      setClassId((current) => current || data[0]?._id || "");
+      setClassId((current) => current || data[0]?.id || "");
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load your classes."));
     } finally {
@@ -117,7 +117,7 @@ export default function MarkAttendance() {
     setDirty(false);
     api
       .get(`/classes/${classId}`)
-      .then(({ data }) => setStudents(data.enrolledStudents || []))
+      .then(({ data }) => setStudents(data.students || []))
       .catch((err) => toast.error(getErrorMessage(err, "Could not load class students.")))
       .finally(() => setLoadingStudents(false));
   }, [classId]);
@@ -131,7 +131,7 @@ export default function MarkAttendance() {
         const statuses = {};
         const remarks = {};
         data.forEach((record) => {
-          const id = record.studentId?._id;
+          const id = record.student?.id;
           if (!id) return;
           statuses[id] = record.status;
           remarks[id] = record.remark || "";
@@ -165,13 +165,13 @@ export default function MarkAttendance() {
     };
   }, [statusMap, students.length]);
 
-  const allSet = students.length > 0 && students.every((student) => statusMap[student._id]);
+  const allSet = students.length > 0 && students.every((student) => statusMap[student.id]);
 
   const markAll = (status) => {
     setStatusMap((previous) => {
       const next = { ...previous };
       students.forEach((student) => {
-        next[student._id] = status;
+        next[student.id] = status;
       });
       return next;
     });
@@ -183,7 +183,7 @@ export default function MarkAttendance() {
     setRemarkMap((previous) => {
       const next = {};
       students.forEach((student) => {
-        next[student._id] = existing[student._id] ? previous[student._id] || "" : "";
+        next[student.id] = existing[student.id] ? previous[student.id] || "" : "";
       });
       return next;
     });
@@ -201,9 +201,9 @@ export default function MarkAttendance() {
         classId,
         date,
         records: students.map((student) => ({
-          studentId: student._id,
-          status: statusMap[student._id],
-          remark: remarkMap[student._id] || "",
+          studentId: student.id,
+          status: statusMap[student.id],
+          remark: remarkMap[student.id] || "",
         })),
       });
       setExisting(statusMap);
@@ -282,7 +282,7 @@ export default function MarkAttendance() {
               </SelectTrigger>
               <SelectContent>
                 {classes.map((cls) => (
-                  <SelectItem key={cls._id} value={cls._id}>
+                  <SelectItem key={cls.id} value={cls.id}>
                     <SubjectIcon subject={cls.subject} name={cls.name} plain />
                     {cls.name} ({cls.batch})
                   </SelectItem>
@@ -405,11 +405,11 @@ export default function MarkAttendance() {
           ) : (
             <ul className="divide-y divide-border/60">
               {students.map((student) => {
-                const status = statusMap[student._id];
-                const saved = existing[student._id];
+                const status = statusMap[student.id];
+                const saved = existing[student.id];
                 return (
                   <li
-                    key={student._id}
+                    key={student.id}
                     className="flex flex-col gap-3 px-4 py-3 transition-colors duration-150 hover:bg-muted/25 lg:flex-row lg:items-center lg:gap-4"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -447,7 +447,7 @@ export default function MarkAttendance() {
                             key={value}
                             type="button"
                             onClick={() => {
-                              setStatusMap((previous) => ({ ...previous, [student._id]: value }));
+                              setStatusMap((previous) => ({ ...previous, [student.id]: value }));
                               setDirty(true);
                             }}
                             aria-pressed={isActive}
@@ -467,11 +467,11 @@ export default function MarkAttendance() {
                     </div>
 
                     <Input
-                      value={remarkMap[student._id] || ""}
+                      value={remarkMap[student.id] || ""}
                       onChange={(event) => {
                         setRemarkMap((previous) => ({
                           ...previous,
-                          [student._id]: event.target.value,
+                          [student.id]: event.target.value,
                         }));
                         setDirty(true);
                       }}

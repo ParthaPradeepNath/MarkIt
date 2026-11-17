@@ -89,7 +89,7 @@ export default function Attendance() {
       } else {
         const responses = await Promise.all(
           classes.map((cls) =>
-            api.get(`/attendance/class/${cls._id}`, { params }).catch(() => ({ data: [] }))
+            api.get(`/attendance/class/${cls.id}`, { params }).catch(() => ({ data: [] }))
           )
         );
         setRecords(responses.flatMap((response) => response.data));
@@ -126,7 +126,7 @@ export default function Attendance() {
     return records.filter((record) => {
       if (statusFilter !== "all" && record.status !== statusFilter) return false;
       if (!needle) return true;
-      return [record.studentId?.name, record.studentId?.rollNumber, record.classId?.name]
+      return [record.student?.name, record.student?.rollNumber, record.class?.name]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
@@ -139,7 +139,7 @@ export default function Attendance() {
     event.preventDefault();
     setSaving(true);
     try {
-      await api.put(`/attendance/${edit._id}`, {
+      await api.put(`/attendance/${edit.id}`, {
         status: edit.status,
         remark: edit.remark,
       });
@@ -156,14 +156,14 @@ export default function Attendance() {
   const remove = async (record) => {
     const ok = await confirm({
       title: "Delete this record?",
-      description: `${record.studentId?.name || "This student"}'s attendance on ${formatDate(
+      description: `${record.student?.name || "This student"}'s attendance on ${formatDate(
         record.date
       )} will be permanently removed.`,
       confirmLabel: "Delete record",
     });
     if (!ok) return;
     try {
-      await api.delete(`/attendance/${record._id}`);
+      await api.delete(`/attendance/${record.id}`);
       toast.success("Record deleted");
       loadRecords();
     } catch (err) {
@@ -200,7 +200,7 @@ export default function Attendance() {
                 <SelectContent>
                   <SelectItem value="all">All classes</SelectItem>
                   {classes.map((cls) => (
-                    <SelectItem key={cls._id} value={cls._id}>
+                    <SelectItem key={cls.id} value={cls.id}>
                       <SubjectIcon subject={cls.subject} name={cls.name} plain />
                       {cls.name} ({cls.batch})
                     </SelectItem>
@@ -319,7 +319,7 @@ export default function Attendance() {
               </TableHeader>
               <TableBody>
                 {filtered.map((record) => (
-                  <TableRow key={record._id}>
+                  <TableRow key={record.id}>
                     <TableCell className="tnum hidden text-[12px] text-muted-foreground sm:table-cell">
                       {formatDate(record.date)}
                     </TableCell>
@@ -327,22 +327,22 @@ export default function Attendance() {
                       <div className="flex items-center gap-2.5">
                         <Avatar size="sm">
                           <AvatarFallback className="bg-muted text-[10px] font-medium">
-                            {initials(record.studentId?.name)}
+                            {initials(record.student?.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <p className="truncate text-[13px] font-medium text-foreground">
-                            {record.studentId?.name || "—"}
+                            {record.student?.name || "—"}
                           </p>
                           <p className="tnum truncate text-[11px] text-muted-foreground">
                             <span className="sm:hidden">{formatDate(record.date)} · </span>
-                            Roll {record.studentId?.rollNumber || "—"}
+                            Roll {record.student?.rollNumber || "—"}
                           </p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="hidden text-[13px] text-muted-foreground sm:table-cell">
-                      {record.classId?.name || "—"}
+                      {record.class?.name || "—"}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={record.status} />
@@ -357,7 +357,7 @@ export default function Attendance() {
                             variant="secondary"
                             size="icon-sm"
                             className="text-muted-foreground"
-                            aria-label={`Actions for ${record.studentId?.name || "record"}`}
+                            aria-label={`Actions for ${record.student?.name || "record"}`}
                           >
                             <MoreHorizontal className="size-4" />
                           </Button>
@@ -388,7 +388,7 @@ export default function Attendance() {
           <DialogHeader>
             <DialogTitle>Correct record</DialogTitle>
             <DialogDescription>
-              {edit?.studentId?.name || "Student"} · {edit?.classId?.name || "Class"} ·{" "}
+              {edit?.student?.name || "Student"} · {edit?.class?.name || "Class"} ·{" "}
               {edit ? formatDate(edit.date) : ""}
             </DialogDescription>
           </DialogHeader>

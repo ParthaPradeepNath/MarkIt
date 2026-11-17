@@ -106,7 +106,7 @@ export default function Students() {
     return students.filter((student) => {
       if (batchFilter !== "all" && student.batch !== batchFilter) return false;
       if (!needle) return true;
-      return [student.name, student.email, student.rollNumber, student.batch, student.className?.name]
+      return [student.name, student.email, student.rollNumber, student.batch, student.class?.name]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
@@ -119,13 +119,13 @@ export default function Students() {
   };
 
   const openEdit = (student) => {
-    setEditId(student._id);
+    setEditId(student.id);
     setForm({
       name: student.name,
       email: student.email,
       rollNumber: student.rollNumber,
       batch: student.batch,
-      className: student.className?._id || student.className || "",
+      className: student.class?.id || student.classId || "",
       guardianPhone: student.guardianPhone || "",
       password: "",
     });
@@ -161,7 +161,7 @@ export default function Students() {
     });
     if (!ok) return;
     try {
-      await api.delete(`/students/${student._id}`);
+      await api.delete(`/students/${student.id}`);
       toast.success("Student deleted");
       load();
     } catch (err) {
@@ -171,7 +171,7 @@ export default function Students() {
 
   const openEnroll = (student) => {
     setEnrollTarget(student);
-    setEnrollClassId(student.className?._id || student.className || "");
+    setEnrollClassId(student.class?.id || student.classId || "");
   };
 
   const enroll = async () => {
@@ -179,7 +179,7 @@ export default function Students() {
     setEnrolling(true);
     try {
       await api.post(`/classes/${enrollClassId}/enroll`, {
-        studentIds: [enrollTarget._id],
+        studentIds: [enrollTarget.id],
       });
       toast.success(`${enrollTarget.name} enrolled in the class`);
       setEnrollTarget(null);
@@ -191,7 +191,7 @@ export default function Students() {
     }
   };
 
-  const currentEnrollId = enrollTarget?.className?._id || enrollTarget?.className || "";
+  const currentEnrollId = enrollTarget?.class?.id || enrollTarget?.classId || "";
   const alreadyEnrolled = Boolean(currentEnrollId && currentEnrollId === enrollClassId);
 
   const header = (
@@ -306,7 +306,7 @@ export default function Students() {
               </TableHeader>
               <TableBody>
                 {filtered.map((student) => (
-                  <TableRow key={student._id}>
+                  <TableRow key={student.id}>
                     <TableCell>
                       <div className="flex items-center gap-2.5">
                         <Avatar size="sm">
@@ -335,7 +335,7 @@ export default function Students() {
                       )}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {student.className?.name ? (
+                      {student.class?.name ? (
                         <span className="text-[13px]">{student.className.name}</span>
                       ) : (
                         <span className="text-[12px] text-muted-foreground">Not enrolled</span>
@@ -451,7 +451,7 @@ export default function Students() {
                       </div>
                     ) : (
                       classes.map((cls) => (
-                        <SelectItem key={cls._id} value={cls._id}>
+                        <SelectItem key={cls.id} value={cls.id}>
                           <SubjectIcon subject={cls.subject} name={cls.name} plain />
                           {cls.name} ({cls.batch})
                         </SelectItem>
@@ -513,7 +513,7 @@ export default function Students() {
               </SelectTrigger>
               <SelectContent>
                 {classes.map((cls) => (
-                  <SelectItem key={cls._id} value={cls._id}>
+                  <SelectItem key={cls.id} value={cls.id}>
                     <SubjectIcon subject={cls.subject} name={cls.name} plain />
                     {cls.name} ({cls.batch})
                   </SelectItem>

@@ -64,7 +64,7 @@ const STUDENT_CONFIG = {
 export default function Reports() {
   const { user } = useAuth();
   const isTeacher = user?.role === "teacher";
-  const ownStudentId = user?.studentId?._id || user?.studentId;
+  const ownStudentId = user?.student?.id || user?.studentId;
 
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
@@ -93,7 +93,7 @@ export default function Reports() {
         setStudents(studentResponse.data);
         const nextBatches = [...new Set(studentResponse.data.map((s) => s.batch).filter(Boolean))].sort();
         setBatches(nextBatches);
-        if (isTeacher) setClassId((current) => current || classResponse.data[0]?._id || "");
+        if (isTeacher) setClassId((current) => current || classResponse.data[0]?.id || "");
         if (!isTeacher) setBatch((current) => current || nextBatches[0] || "");
       } catch (err) {
         if (!cancelled) setError(getErrorMessage(err, "Failed to load report data."));
@@ -145,7 +145,7 @@ export default function Reports() {
     setData(null);
     setError("");
     if (next === "batch" && !batch) setBatch(batches[0] || "");
-    if (next === "student" && !studentId) setStudentId(students[0]?._id || "");
+    if (next === "student" && !studentId) setStudentId(students[0]?.id || "");
   };
 
   const viewStudent = (id) => {
@@ -154,14 +154,14 @@ export default function Reports() {
   };
 
   const summary = data?.summary;
-  const selectedStudent = students.find((student) => student._id === studentId);
+  const selectedStudent = students.find((student) => student.id === studentId);
   const isStudentReport = Boolean(data?.summary && !data?.students);
   const atRisk = (data?.students || []).filter((entry) => entry.summary.risk);
 
   const scopeLabel = isStudentReport
     ? selectedStudent?.name || (isTeacher ? "Student" : "Your report")
     : tab === "class"
-      ? classes.find((cls) => cls._id === classId)?.name || "Class report"
+      ? classes.find((cls) => cls.id === classId)?.name || "Class report"
       : tab === "batch"
         ? batch || "Batch report"
         : "Student report";
@@ -208,7 +208,7 @@ export default function Reports() {
               </SelectTrigger>
               <SelectContent>
                 {classes.map((cls) => (
-                  <SelectItem key={cls._id} value={cls._id}>
+                  <SelectItem key={cls.id} value={cls.id}>
                     <SubjectIcon subject={cls.subject} name={cls.name} plain />
                     {cls.name} ({cls.batch})
                   </SelectItem>
@@ -237,7 +237,7 @@ export default function Reports() {
               </SelectTrigger>
               <SelectContent>
                 {students.map((student) => (
-                  <SelectItem key={student._id} value={student._id}>
+                  <SelectItem key={student.id} value={student.id}>
                     {student.name} ({student.rollNumber})
                   </SelectItem>
                 ))}
@@ -422,7 +422,7 @@ export default function Reports() {
                   </TableHeader>
                   <TableBody>
                     {data.students.map(({ student, summary: studentSummary }) => (
-                      <TableRow key={student._id}>
+                      <TableRow key={student.id}>
                         <TableCell>
                           <div className="flex items-center gap-2.5">
                             <Avatar size="sm">
@@ -467,7 +467,7 @@ export default function Reports() {
                             variant="secondary"
                             size="icon-sm"
                             className="text-muted-foreground"
-                            onClick={() => viewStudent(student._id)}
+                            onClick={() => viewStudent(student.id)}
                             aria-label={`Open report for ${student.name}`}
                           >
                             <ArrowUpRight className="size-3.5" />

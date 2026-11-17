@@ -76,7 +76,7 @@ export default function Classes() {
       setClasses(classResponse.data);
       setAllStudents(studentResponse.data);
       setEnrollFor((current) =>
-        current ? classResponse.data.find((cls) => cls._id === current._id) || null : null
+        current ? classResponse.data.find((cls) => cls.id === current.id) || null : null
       );
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load classes."));
@@ -90,7 +90,7 @@ export default function Classes() {
   }, [load]);
 
   const totalEnrolled = classes.reduce(
-    (sum, cls) => sum + (cls.enrolledStudents?.length || 0),
+    (sum, cls) => sum + (cls.students?.length || 0),
     0
   );
 
@@ -122,12 +122,12 @@ export default function Classes() {
     const ok = await confirm({
       title: `Delete ${cls.name}?`,
       description:
-        "The class will be removed. Attendance records stay in the system but are no longer linked to this class.",
+        "The class and its attendance records will be removed. Students will stay enrolled in no class.",
       confirmLabel: "Delete class",
     });
     if (!ok) return;
     try {
-      await api.delete(`/classes/${cls._id}`);
+      await api.delete(`/classes/${cls.id}`);
       toast.success("Class deleted");
       load();
     } catch (err) {
@@ -142,14 +142,14 @@ export default function Classes() {
   };
 
   const enrolledIds = useMemo(
-    () => enrollFor?.enrolledStudents?.map((student) => student._id) || [],
+    () => enrollFor?.students?.map((student) => student.id) || [],
     [enrollFor]
   );
 
   const available = useMemo(() => {
     const needle = enrollQuery.trim().toLowerCase();
     return allStudents
-      .filter((student) => !enrolledIds.includes(student._id))
+      .filter((student) => !enrolledIds.includes(student.id))
       .filter((student) =>
         !needle
           ? true
@@ -163,7 +163,7 @@ export default function Classes() {
     if (!enrollFor || selected.length === 0) return;
     setEnrolling(true);
     try {
-      await api.post(`/classes/${enrollFor._id}/enroll`, { studentIds: selected });
+      await api.post(`/classes/${enrollFor.id}/enroll`, { studentIds: selected });
       toast.success(`Enrolled ${plural(selected.length, "student")}`);
       setSelected([]);
       load();
@@ -183,7 +183,7 @@ export default function Classes() {
     });
     if (!ok) return;
     try {
-      await api.delete(`/classes/${cls._id}/students/${student._id}`);
+      await api.delete(`/classes/${cls.id}/students/${student.id}`);
       toast.success("Student removed from class");
       load();
     } catch (err) {
@@ -244,9 +244,9 @@ export default function Classes() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {classes.map((cls) => {
-            const count = cls.enrolledStudents?.length || 0;
+            const count = cls.students?.length || 0;
             return (
-              <Card key={cls._id} className="group/card transition-shadow duration-200 hover:shadow-elevated">
+              <Card key={cls.id} className="group/card transition-shadow duration-200 hover:shadow-elevated">
                 <CardContent className="flex h-full flex-col gap-4">
                   <div className="flex items-start gap-3">
                     <SubjectIcon subject={cls.subject} name={cls.name} />
@@ -300,8 +300,8 @@ export default function Classes() {
                     {count > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5">
-                          {cls.enrolledStudents.slice(0, 4).map((student) => (
-                            <Avatar key={student._id} size="sm">
+                          {cls.students.slice(0, 4).map((student) => (
+                            <Avatar key={student.id} size="sm">
                               <AvatarFallback className="bg-muted text-[9px] font-semibold ring-1 ring-border/60 ring-inset">
                                 {initials(student.name)}
                               </AvatarFallback>
@@ -450,9 +450,9 @@ export default function Classes() {
               ) : (
                 <ul className="divide-y divide-border/60">
                   {available.map((student) => {
-                    const checked = selected.includes(student._id);
+                    const checked = selected.includes(student.id);
                     return (
-                      <li key={student._id}>
+                      <li key={student.id}>
                         <label
                           className={cn(
                             "flex cursor-pointer items-center gap-3 px-3 py-2 transition-colors duration-150 hover:bg-muted/60",
@@ -464,8 +464,8 @@ export default function Classes() {
                             onCheckedChange={() =>
                               setSelected((previous) =>
                                 checked
-                                  ? previous.filter((id) => id !== student._id)
-                                  : [...previous, student._id]
+                                  ? previous.filter((id) => id !== student.id)
+                                  : [...previous, student.id]
                               )
                             }
                           />
@@ -497,9 +497,9 @@ export default function Classes() {
                   Enrolled
                 </p>
                 <ul className="max-h-[132px] divide-y divide-border/60 overflow-y-auto overscroll-contain rounded-lg border border-border/70">
-                  {enrollFor.enrolledStudents.map((student) => (
+                  {enrollFor.students.map((student) => (
                     <li
-                      key={student._id}
+                      key={student.id}
                       className="flex items-center gap-3 px-3 py-2"
                     >
                       <Avatar size="sm">

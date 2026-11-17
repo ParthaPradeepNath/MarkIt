@@ -55,7 +55,7 @@ export default function TeacherDashboard() {
       const days = await Promise.all(
         classResponse.data.map((cls) =>
           api
-            .get(`/attendance/class/${cls._id}?date=${today}`)
+            .get(`/attendance/class/${cls.id}?date=${today}`)
             .catch(() => ({ data: [] }))
         )
       );
@@ -87,7 +87,7 @@ export default function TeacherDashboard() {
   }, [todayRecords]);
 
   const enrolledCount = classes.reduce(
-    (total, cls) => total + (cls.enrolledStudents?.length || 0),
+    (total, cls) => total + (cls.students?.length || 0),
     0
   );
 
@@ -265,7 +265,7 @@ export default function TeacherDashboard() {
               <div className="space-y-0.5">
                 {classes.slice(0, 5).map((cls) => (
                   <Link
-                    key={cls._id}
+                    key={cls.id}
                     to="/classes"
                     className="group flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors duration-150 hover:bg-muted/60"
                   >
@@ -285,7 +285,7 @@ export default function TeacherDashboard() {
                     </span>
                     <Badge variant="secondary" className="tnum gap-1 text-muted-foreground">
                       <Users className="size-3" aria-hidden="true" />
-                      {cls.enrolledStudents?.length || 0}
+                      {cls.students?.length || 0}
                     </Badge>
                   </Link>
                 ))}
@@ -315,7 +315,7 @@ export default function TeacherDashboard() {
             ) : (
               <div className="space-y-4">
                 {lowAttendance.slice(0, 5).map(({ student, summary }) => (
-                  <div key={student._id} className="flex items-center gap-3">
+                  <div key={student.id} className="flex items-center gap-3">
                     <Avatar size="sm">
                       <AvatarFallback className="bg-muted text-[10px] font-medium">
                         {initials(student.name)}
@@ -395,19 +395,19 @@ export default function TeacherDashboard() {
               </TableHeader>
               <TableBody>
                 {todayRecords.slice(0, 8).map((record) => (
-                  <TableRow key={record._id}>
+                  <TableRow key={record.id}>
                     <TableCell>
                       <div className="flex items-center gap-2.5">
                         <Avatar size="sm">
                           <AvatarFallback className="bg-muted text-[10px] font-medium">
-                            {initials(record.studentId?.name)}
+                            {initials(record.student?.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{record.studentId?.name || "—"}</span>
+                        <span className="font-medium">{record.student?.name || "—"}</span>
                       </div>
                     </TableCell>
                     <TableCell className="hidden text-muted-foreground sm:table-cell">
-                      {record.classId?.name || "—"}
+                      {record.class?.name || "—"}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={record.status} />

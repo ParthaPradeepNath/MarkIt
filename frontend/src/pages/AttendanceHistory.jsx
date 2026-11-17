@@ -54,7 +54,7 @@ const STATUSES = [
 export default function AttendanceHistory() {
   const { user } = useAuth();
   const isTeacher = user?.role === "teacher";
-  const ownStudentId = user?.studentId?._id || user?.studentId;
+  const ownStudentId = user?.student?.id || user?.studentId;
 
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
@@ -72,7 +72,7 @@ export default function AttendanceHistory() {
         .get("/students")
         .then(({ data }) => {
           setStudents(data);
-          setStudentId((current) => current || data[0]?._id || "");
+          setStudentId((current) => current || data[0]?.id || "");
         })
         .catch((err) => setError(getErrorMessage(err, "Failed to load students.")));
     } else if (ownStudentId) {
@@ -101,7 +101,7 @@ export default function AttendanceHistory() {
     loadRecords();
   }, [loadRecords]);
 
-  const selectedStudent = students.find((student) => student._id === studentId);
+  const selectedStudent = students.find((student) => student.id === studentId);
   const studentName = selectedStudent?.name || user?.name || "Student";
 
   const counts = useMemo(() => {
@@ -117,7 +117,7 @@ export default function AttendanceHistory() {
     return records.filter((record) => {
       if (statusFilter !== "all" && record.status !== statusFilter) return false;
       if (!needle) return true;
-      return [record.classId?.name, record.classId?.batch, record.remark, formatDate(record.date)]
+      return [record.class?.name, record.class?.batch, record.remark, formatDate(record.date)]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
@@ -130,7 +130,7 @@ export default function AttendanceHistory() {
     event.preventDefault();
     setSaving(true);
     try {
-      await api.put(`/attendance/${correction._id}`, {
+      await api.put(`/attendance/${correction.id}`, {
         status: correction.status,
         remark: correction.remark,
       });
@@ -150,8 +150,8 @@ export default function AttendanceHistory() {
       .map((record) =>
         [
           format(new Date(record.date), "yyyy-MM-dd"),
-          record.classId?.name || "",
-          record.classId?.batch || "",
+          record.class?.name || "",
+          record.class?.batch || "",
           record.status,
           (record.remark || "").replace(/[",\n]/g, " "),
           record.markedBy?.name || "",
@@ -221,7 +221,7 @@ export default function AttendanceHistory() {
                 </SelectTrigger>
                 <SelectContent>
                   {students.map((student) => (
-                    <SelectItem key={student._id} value={student._id}>
+                    <SelectItem key={student.id} value={student.id}>
                       {student.name} ({student.rollNumber})
                     </SelectItem>
                   ))}
@@ -366,14 +366,14 @@ export default function AttendanceHistory() {
                   </TableHeader>
                   <TableBody>
                     {filtered.map((record) => (
-                      <TableRow key={record._id}>
+                      <TableRow key={record.id}>
                         <TableCell className="tnum text-[12px] text-muted-foreground">
                           {formatDate(record.date)}
                         </TableCell>
                         <TableCell>
-                          <p className="text-[13px] font-medium">{record.classId?.name || "—"}</p>
+                          <p className="text-[13px] font-medium">{record.class?.name || "—"}</p>
                           <p className="text-[11px] text-muted-foreground">
-                            {record.classId?.batch || "—"}
+                            {record.class?.batch || "—"}
                           </p>
                         </TableCell>
                         <TableCell>
@@ -419,7 +419,7 @@ export default function AttendanceHistory() {
           <DialogHeader>
             <DialogTitle>Correct record</DialogTitle>
             <DialogDescription>
-              {studentName} · {correction?.classId?.name || "Class"} ·{" "}
+              {studentName} · {correction?.class?.name || "Class"} ·{" "}
               {correction ? formatDate(correction.date) : ""}
             </DialogDescription>
           </DialogHeader>

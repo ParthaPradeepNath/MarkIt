@@ -44,7 +44,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const studentId = user?.studentId?._id || user?.studentId;
+  const studentId = user?.student?.id || user?.studentId;
 
   const load = useCallback(async () => {
     if (!studentId) {
@@ -318,11 +318,11 @@ export default function StudentDashboard() {
               </TableHeader>
               <TableBody>
                 {recent.map((record) => (
-                  <TableRow key={record._id}>
+                  <TableRow key={record.id}>
                     <TableCell className="text-muted-foreground">
                       {formatDate(record.date, "MMM d, yyyy")}
                     </TableCell>
-                    <TableCell className="hidden font-medium sm:table-cell">{record.classId?.name || "—"}</TableCell>
+                    <TableCell className="hidden font-medium sm:table-cell">{record.class?.name || "—"}</TableCell>
                     <TableCell>
                       <StatusBadge status={record.status} />
                     </TableCell>
