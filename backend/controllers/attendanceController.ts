@@ -1,18 +1,24 @@
+import type { Request, Response } from "express";
+import type { AttendanceStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../config/db.js";
+import { errorMessage } from "../lib/error.js";
+import { isAttendanceStatus } from "../lib/attendance.js";
+import { queryString } from "../lib/http.js";
 
 const attendanceInclude = {
   student: { select: { id: true, name: true, rollNumber: true, batch: true } },
   class: { select: { id: true, name: true, subject: true, batch: true } },
   markedBy: { select: { id: true, name: true } },
-};
+} as const;
 
-const normalizeDate = (d) => {
-  const date = new Date(d);
+const normalizeDate = (d: unknown): Date => {
+  const date = new Date(d as string);
   date.setUTCHours(0, 0, 0, 0);
   return date;
 };
 
-export const markAttendance = async (req, res) => {
+export const markAttendance = async (req: Request, res: Response) => {
   try {
     const { classId, date, records } = req.body;
     if (!classId || !date || !Array.isArray(records) || records.length === 0) {
@@ -25,8 +31,12 @@ export const markAttendance = async (req, res) => {
     }
     const day = normalizeDate(date);
     const saved = [];
-    for (const r of records) {
-      if (!["present", "absent", "late", "leave"].includes(r.status)) {
+    for (const r of records as Array<{
+      studentId: string;
+      status: AttendanceStatus;
+      remark?: string;
+    }>) {
+      if (!isAttendanceStatus(r.status)) {
         return res.status(400).json({ message: `Invalid status: ${r.status}` });
       }
       const doc = await prisma.attendance.upsert({
@@ -56,20 +66,20 @@ export const markAttendance = async (req, res) => {
     }
     res.json({ message: `Marked ${saved.length} records`, saved });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const updateAttendance = async (req, res) => {
+export const updateAttendance = async (req: Request, res: Response) => {
   try {
     const { status, remark } = req.body;
     const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
     if (!record) return res.status(404).json({ message: "Attendance record not found" });
-    if (status && !["present", "absent", "late", "leave"].includes(status)) {
+    if (status && !isAttendanceStatus(status)) {
       return res.status(400).json({ message: `Invalid status: ${status}` });
     }
-    const data = { markedById: req.user.id };
-    if (status) data.status = status;
+    const data: Prisma.AttendanceUncheckedUpdateInput = { markedById: req.user.id };
+    if (status) data.status = status as AttendanceStatus;
     if (remark !== undefined) data.remark = remark;
     const updated = await prisma.attendance.update({
       where: { id: record.id },
@@ -78,11 +88,11 @@ export const updateAttendance = async (req, res) => {
     });
     res.json(updated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const getStudentAttendance = async (req, res) => {
+export const getStudentAttendance = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const allowed =
@@ -99,15 +109,15 @@ export const getStudentAttendance = async (req, res) => {
     });
     res.json(records);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const getClassAttendance = async (req, res) => {
+export const getClassAttendance = async (req: Request, res: Response) => {
   try {
-    const { classId } = req.params;
-    const { date } = req.query;
-    const where = { classId };
+    const classId = queryString(req.params.classId);
+    const date = queryString(req.query.date);
+    const where: Prisma.AttendanceWhereInput = { classId };
     if (date) where.date = normalizeDate(date);
     const records = await prisma.attendance.findMany({
       where,
@@ -116,17 +126,17 @@ export const getClassAttendance = async (req, res) => {
     });
     res.json(records);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const deleteAttendance = async (req, res) => {
+export const deleteAttendance = async (req: Request, res: Response) => {
   try {
     const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
     if (!record) return res.status(404).json({ message: "Attendance record not found" });
     await prisma.attendance.delete({ where: { id: record.id } });
     res.json({ message: "Attendance record deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };

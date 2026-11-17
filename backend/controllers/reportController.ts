@@ -1,25 +1,38 @@
+import type { Request, Response } from "express";
+import type { AttendanceStatus } from "@prisma/client";
 import { prisma } from "../config/db.js";
+import { errorMessage } from "../lib/error.js";
+import { queryString } from "../lib/http.js";
 
-const PRESENT_LIKE = ["present", "late"];
+const PRESENT_LIKE: readonly AttendanceStatus[] = ["present", "late"];
 
-const computeSummary = (records) => {
+type ReportRecord = { status: AttendanceStatus; date: Date | string };
+
+type StudentRef = { name: string; rollNumber: string; id?: string; batch?: string };
+
+type GroupedRecords<T extends StudentRef = StudentRef> = {
+  student: T;
+  records: ReportRecord[];
+};
+
+const computeSummary = (records: readonly ReportRecord[]) => {
   const total = records.length;
-  const counts = {
+  const counts: Record<AttendanceStatus, number> = {
     present: 0,
     absent: 0,
     late: 0,
     leave: 0,
   };
   records.forEach((r) => {
-    if (counts[r.status] !== undefined) counts[r.status] += 1;
+    counts[r.status] += 1;
   });
   const attended = records.filter((r) => PRESENT_LIKE.includes(r.status)).length;
   const percentage = total > 0 ? Math.round((attended / total) * 100) : 0;
   return { total, ...counts, percentage, risk: total > 0 && percentage < 75 };
 };
 
-const buildTrend = (records) => {
-  const byMonth = {};
+const buildTrend = (records: readonly ReportRecord[]) => {
+  const byMonth: Record<string, ReportRecord[]> = {};
   records.forEach((r) => {
     const key = new Date(r.date).toISOString().slice(0, 7);
     if (!byMonth[key]) byMonth[key] = [];
@@ -33,9 +46,12 @@ const buildTrend = (records) => {
     });
 };
 
-export const getReport = async (req, res) => {
+export const getReport = async (req: Request, res: Response) => {
   try {
-    const { type, studentId, classId, batch } = req.query;
+    const type = queryString(req.query.type);
+    const studentId = queryString(req.query.studentId);
+    const classId = queryString(req.query.classId);
+    const batch = queryString(req.query.batch);
 
     if (type === "student") {
       if (!studentId) return res.status(400).json({ message: "studentId is required" });
@@ -48,7 +64,7 @@ export const getReport = async (req, res) => {
         where: { studentId },
         include: { class: { select: { id: true, name: true, subject: true, batch: true } } },
       });
-      const byClass = {};
+      const byClass: Record<string, { className: string; subject: string; batch: string; records: ReportRecord[] }> = {};
       records.forEach((r) => {
         const key = r.class?.id || "unknown";
         if (!byClass[key]) {
@@ -86,7 +102,7 @@ export const getReport = async (req, res) => {
           student: { select: { id: true, name: true, rollNumber: true } },
         },
       });
-      const perStudent = {};
+      const perStudent: Record<string, GroupedRecords> = {};
       records.forEach((r) => {
         const sid = r.student?.id || "unknown";
         if (!perStudent[sid]) {
@@ -119,7 +135,7 @@ export const getReport = async (req, res) => {
           student: { select: { id: true, name: true, rollNumber: true, batch: true } },
         },
       });
-      const perStudent = {};
+      const perStudent: Record<string, GroupedRecords> = {};
       records.forEach((r) => {
         const sid = r.student?.id;
         if (!sid) return;
@@ -143,13 +159,13 @@ export const getReport = async (req, res) => {
       .status(400)
       .json({ message: "type must be one of: student, class, batch" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const getLowAttendanceStudents = async (req, res) => {
+export const getLowAttendanceStudents = async (req: Request, res: Response) => {
   try {
-    const classId = req.query.classId;
+    const classId = queryString(req.query.classId);
     const students = await prisma.student.findMany({
       where: classId ? { classId } : {},
     });
@@ -163,6 +179,6 @@ export const getLowAttendanceStudents = async (req, res) => {
     }
     res.json(result.sort((a, b) => a.summary.percentage - b.summary.percentage));
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };

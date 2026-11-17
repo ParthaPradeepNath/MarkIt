@@ -1,23 +1,29 @@
 import jwt from "jsonwebtoken";
+import type { Request, Response } from "express";
+import type { Class, Student, User } from "@prisma/client";
 import { prisma } from "../config/db.js";
 import { hashPassword, matchPassword } from "../lib/user.js";
+import { errorMessage } from "../lib/error.js";
 
-const userInclude = { student: { include: { class: true } } };
+const userInclude = { student: { include: { class: true } } } as const;
 
-const toUserResponse = (user) => ({
+type PopulatedUser = User & { student: (Student & { class: Class | null }) | null };
+
+const toUserResponse = (user: PopulatedUser) => ({
   id: user.id,
   name: user.name,
   email: user.email,
   role: user.role,
   studentId: user.studentId,
-  student: user.student || null,
+  student: user.student ?? null,
 });
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-};
+const generateToken = (id: string): string =>
+  jwt.sign({ id }, process.env.JWT_SECRET!, {
+    expiresIn: process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
+  });
 
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -32,21 +38,22 @@ export const login = async (req, res) => {
     }
     res.json({ token: generateToken(user.id), user: toUserResponse(user) });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const getMe = async (req, res) => {
+export const getMe = (req: Request, res: Response) => {
   res.json(req.user);
 };
 
-export const updateProfile = async (req, res) => {
+export const updateProfile = async (req: Request, res: Response) => {
   try {
     const { name, guardianPhone } = req.body;
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       include: userInclude,
     });
+    if (!user) return res.status(404).json({ message: "User not found" });
     if (name) {
       await prisma.user.update({ where: { id: user.id }, data: { name } });
     }
@@ -60,13 +67,13 @@ export const updateProfile = async (req, res) => {
       where: { id: user.id },
       include: userInclude,
     });
-    res.json(toUserResponse(updated));
+    res.json(toUserResponse(updated as PopulatedUser));
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const changePassword = async (req, res) => {
+export const changePassword = async (req: Request, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
@@ -82,6 +89,6 @@ export const changePassword = async (req, res) => {
     });
     res.json({ message: "Password changed successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };

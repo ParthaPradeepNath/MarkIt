@@ -1,8 +1,10 @@
+import type { Request, Response } from "express";
 import { prisma } from "../config/db.js";
+import { errorMessage } from "../lib/error.js";
 
-const classInclude = { students: true };
+const classInclude = { students: true } as const;
 
-export const getClasses = async (req, res) => {
+export const getClasses = async (req: Request, res: Response) => {
   try {
     let classes;
     if (req.user.role === "teacher") {
@@ -19,11 +21,11 @@ export const getClasses = async (req, res) => {
     }
     res.json(classes);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const getClassById = async (req, res) => {
+export const getClassById = async (req: Request, res: Response) => {
   try {
     const cls = await prisma.class.findUnique({
       where: { id: req.params.id },
@@ -32,11 +34,11 @@ export const getClassById = async (req, res) => {
     if (!cls) return res.status(404).json({ message: "Class not found" });
     res.json(cls);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const createClass = async (req, res) => {
+export const createClass = async (req: Request, res: Response) => {
   try {
     const { name, subject, batch, schedule } = req.body;
     if (!name || !subject || !batch) {
@@ -48,11 +50,11 @@ export const createClass = async (req, res) => {
     });
     res.status(201).json(cls);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const enrollStudents = async (req, res) => {
+export const enrollStudents = async (req: Request, res: Response) => {
   try {
     const { studentIds } = req.body;
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
@@ -63,7 +65,7 @@ export const enrollStudents = async (req, res) => {
     if (!Array.isArray(studentIds) || studentIds.length === 0) {
       return res.status(400).json({ message: "studentIds array is required" });
     }
-    for (const id of studentIds) {
+    for (const id of studentIds as string[]) {
       await prisma.student.updateMany({
         where: { id },
         data: { classId: cls.id },
@@ -75,11 +77,11 @@ export const enrollStudents = async (req, res) => {
     });
     res.json(populated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const removeStudentFromClass = async (req, res) => {
+export const removeStudentFromClass = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
@@ -97,11 +99,11 @@ export const removeStudentFromClass = async (req, res) => {
     });
     res.json(populated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };
 
-export const deleteClass = async (req, res) => {
+export const deleteClass = async (req: Request, res: Response) => {
   try {
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
@@ -112,6 +114,6 @@ export const deleteClass = async (req, res) => {
     await prisma.class.delete({ where: { id: cls.id } });
     res.json({ message: "Class deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: errorMessage(error) });
   }
 };

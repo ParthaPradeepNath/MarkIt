@@ -1,4 +1,6 @@
 import "./config/env.js";
+import type { AttendanceStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { connectDB, disconnectDB, prisma } from "./config/db.js";
 import { hashPassword } from "./lib/user.js";
 
@@ -86,7 +88,7 @@ const run = async () => {
     data: { classId: classB.id },
   });
 
-  const statuses = ["present", "present", "present", "absent", "late", "leave", "present", "absent"];
+  const statuses: AttendanceStatus[] = ["present", "present", "present", "absent", "late", "leave", "present", "absent"];
   const days = 30;
   const dates = Array.from({ length: days }, (_, i) => {
     const d = new Date();
@@ -95,7 +97,7 @@ const run = async () => {
     return d;
   });
 
-  const attendanceData = [];
+  const attendanceData: Prisma.AttendanceCreateManyInput[] = [];
   const allStudents = [
     ...classAStudents.map((s) => ({ s, cls: classA })),
     ...classBStudents.map((s) => ({ s, cls: classB })),
@@ -105,7 +107,7 @@ const run = async () => {
     const isRiskStudent = s.name === "Kabir Singh" || s.name === "Vikram Rao";
     for (const date of dates) {
       if (date.getUTCDay() === 0) continue;
-      let status = statuses[Math.floor(Math.random() * statuses.length)];
+      let status: AttendanceStatus = statuses[Math.floor(Math.random() * statuses.length)]!;
       if (isRiskStudent && Math.random() < 0.55) status = "absent";
       attendanceData.push({
         classId: cls.id,
@@ -133,7 +135,7 @@ Seed complete!
   await disconnectDB();
 };
 
-run().catch(async (err) => {
+run().catch(async (err: unknown) => {
   console.error(err);
   await disconnectDB().catch(() => {});
   process.exit(1);

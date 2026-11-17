@@ -1,5 +1,5 @@
 import "./config/env.js";
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import { connectDB, disconnectDB, getDatabaseInfo } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 app.use(express.json());
 
-app.get("/api/health", (req, res) =>
+app.get("/api/health", (_req, res) =>
   res.json({
     status: "ok",
     time: new Date().toISOString(),
@@ -27,8 +27,8 @@ app.use("/api/students", studentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/reports", reportRoutes);
 
-app.use((req, res) => res.status(404).json({ message: "Route not found" }));
-app.use((err, req, res, next) => {
+app.use((_req, res) => res.status(404).json({ message: "Route not found" }));
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ message: err.message });
 });
@@ -38,7 +38,7 @@ const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
   const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-  const shutdown = async (signal) => {
+  const shutdown = async (signal: string) => {
     console.log(`${signal} received, shutting down...`);
     server.close(async () => {
       await disconnectDB();
