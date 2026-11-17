@@ -1,8 +1,17 @@
-import { getPayloadConfigFromPayload, getColorsCount, useChart } from "@/components/evilcharts/ui/recharts-chart";
-import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import * as RechartsPrimitive from "recharts";
-import { cn } from "@/lib/utils";
 import * as React from "react";
+
+import * as RechartsPrimitive from "recharts";
+import type {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
+
+import {
+  getColorsCount,
+  getPayloadConfigFromPayload,
+  useChart,
+} from "@/components/evilcharts/ui/recharts-chart";
+import { cn } from "@/lib/utils";
 
 type TooltipRoundness = "sm" | "md" | "lg" | "xl";
 type TooltipVariant = "default" | "frosted-glass";
@@ -60,11 +69,15 @@ function ChartTooltipContent({
     const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value =
-      !labelKey && typeof label === "string" ? (config[label]?.label ?? label) : itemConfig?.label;
+      !labelKey && typeof label === "string"
+        ? (config[label]?.label ?? label)
+        : itemConfig?.label;
 
     if (labelFormatter) {
       return (
-        <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>
+        <div className={cn("font-medium", labelClassName)}>
+          {labelFormatter(value, payload)}
+        </div>
       );
     }
 
@@ -73,7 +86,15 @@ function ChartTooltipContent({
     }
 
     return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
+  }, [
+    label,
+    labelFormatter,
+    payload,
+    hideLabel,
+    labelClassName,
+    config,
+    labelKey,
+  ]);
 
   if (!active || !payload?.length) {
     // Empty tooltip - to prevent position getting 0.0 so it doesnt animate tooltip every time from 0.0 origin
@@ -88,7 +109,7 @@ function ChartTooltipContent({
         "border-border/50 grid min-w-32 items-start gap-1.5 border px-2.5 py-1.5 text-xs shadow-xl",
         roundnessMap[roundness],
         variantMap[variant],
-        className,
+        className
       )}
     >
       {!nestLabel ? tooltipLabel : null}
@@ -115,7 +136,7 @@ function ChartTooltipContent({
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center",
-                  selected != null && selected !== item.dataKey && "opacity-30",
+                  selected != null && selected !== item.dataKey && "opacity-30"
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
@@ -141,7 +162,7 @@ function ChartTooltipContent({
                     <div
                       className={cn(
                         "flex flex-1 justify-between gap-4 leading-none",
-                        nestLabel ? "items-end" : "items-center",
+                        nestLabel ? "items-end" : "items-center"
                       )}
                     >
                       <div className="grid gap-1.5">
@@ -168,7 +189,10 @@ function ChartTooltipContent({
   );
 }
 
-function getIndicatorColorStyle(dataKey: string, colorsCount: number): React.CSSProperties {
+function getIndicatorColorStyle(
+  dataKey: string,
+  colorsCount: number
+): React.CSSProperties {
   if (colorsCount <= 1) {
     return { background: `var(--color-${dataKey}-0)` };
   }

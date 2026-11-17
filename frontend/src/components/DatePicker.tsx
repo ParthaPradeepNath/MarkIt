@@ -1,9 +1,15 @@
 import { useState } from "react";
+
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 function parseValue(value: string | null | undefined): Date | undefined {
@@ -49,8 +55,13 @@ export default function DatePicker({
           variant="secondary"
           className={cn("min-w-0 justify-start gap-2 font-normal", className)}
         >
-          <CalendarIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className={cn("truncate", !selected && "text-muted-foreground")}>
+          <CalendarIcon
+            className="text-muted-foreground size-3.5 shrink-0"
+            aria-hidden="true"
+          />
+          <span
+            className={cn("truncate", !selected && "text-muted-foreground")}
+          >
             {selected ? format(selected, "PPP") : placeholder}
           </span>
         </Button>

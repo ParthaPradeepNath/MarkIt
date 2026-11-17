@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   BookOpen,
   Loader2,
@@ -10,13 +17,14 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+
 import api from "@/api/axios";
-import PageHeader from "@/components/PageHeader";
+import { useConfirm } from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import SubjectIcon from "@/components/SubjectIcon";
+import PageHeader from "@/components/PageHeader";
 import { TableSkeleton } from "@/components/Skeletons";
-import { useConfirm } from "@/components/ConfirmDialog";
+import SubjectIcon from "@/components/SubjectIcon";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,7 +53,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getErrorMessage, initials, plural } from "@/lib/format";
 import type { ClassInfo, Student } from "@/types";
 
@@ -98,7 +113,10 @@ export default function Students() {
   }, [load]);
 
   const batches = useMemo(
-    () => [...new Set(students.map((student) => student.batch).filter(Boolean))].sort(),
+    () =>
+      [
+        ...new Set(students.map((student) => student.batch).filter(Boolean)),
+      ].sort(),
     [students]
   );
 
@@ -107,7 +125,13 @@ export default function Students() {
     return students.filter((student) => {
       if (batchFilter !== "all" && student.batch !== batchFilter) return false;
       if (!needle) return true;
-      return [student.name, student.email, student.rollNumber, student.batch, student.class?.name]
+      return [
+        student.name,
+        student.email,
+        student.rollNumber,
+        student.batch,
+        student.class?.name,
+      ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
@@ -192,8 +216,11 @@ export default function Students() {
     }
   };
 
-  const currentEnrollId = enrollTarget?.class?.id || enrollTarget?.classId || "";
-  const alreadyEnrolled = Boolean(currentEnrollId && currentEnrollId === enrollClassId);
+  const currentEnrollId =
+    enrollTarget?.class?.id || enrollTarget?.classId || "";
+  const alreadyEnrolled = Boolean(
+    currentEnrollId && currentEnrollId === enrollClassId
+  );
 
   const header = (
     <PageHeader
@@ -228,7 +255,7 @@ export default function Students() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-xs">
           <Search
-            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
             aria-hidden="true"
           />
           <Input
@@ -253,8 +280,13 @@ export default function Students() {
             ))}
           </SelectContent>
         </Select>
-        <p className="text-[12px] text-muted-foreground sm:ml-auto" aria-live="polite">
-          {loading ? "Loading…" : `Showing ${filtered.length} of ${students.length}`}
+        <p
+          className="text-muted-foreground text-[12px] sm:ml-auto"
+          aria-live="polite"
+        >
+          {loading
+            ? "Loading…"
+            : `Showing ${filtered.length} of ${students.length}`}
         </p>
       </div>
 
@@ -265,7 +297,9 @@ export default function Students() {
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={query || batchFilter !== "all" ? Search : Users}
-              title={students.length === 0 ? "No students yet" : "No students match"}
+              title={
+                students.length === 0 ? "No students yet" : "No students match"
+              }
               description={
                 students.length === 0
                   ? "Add your first student to start enrolling them in classes and taking attendance."
@@ -299,7 +333,9 @@ export default function Students() {
                   <TableHead className="hidden sm:table-cell">Roll</TableHead>
                   <TableHead className="hidden sm:table-cell">Batch</TableHead>
                   <TableHead className="hidden md:table-cell">Class</TableHead>
-                  <TableHead className="hidden md:table-cell">Guardian</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Guardian
+                  </TableHead>
                   <TableHead className="w-10 text-right">
                     <span className="sr-only">Actions</span>
                   </TableHead>
@@ -311,21 +347,21 @@ export default function Students() {
                     <TableCell>
                       <div className="flex items-center gap-2.5">
                         <Avatar size="sm">
-                          <AvatarFallback className="bg-primary/[0.08] text-[10px] font-semibold text-primary">
+                          <AvatarFallback className="bg-primary/[0.08] text-primary text-[10px] font-semibold">
                             {initials(student.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="truncate text-[13px] font-medium text-foreground">
+                          <p className="text-foreground truncate text-[13px] font-medium">
                             {student.name}
                           </p>
-                          <p className="truncate text-[11px] text-muted-foreground">
+                          <p className="text-muted-foreground truncate text-[11px]">
                             {student.email}
                           </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="tnum hidden text-muted-foreground sm:table-cell">
+                    <TableCell className="tnum text-muted-foreground hidden sm:table-cell">
                       {student.rollNumber || "—"}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
@@ -337,12 +373,16 @@ export default function Students() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {student.class?.name ? (
-                        <span className="text-[13px]">{student.class?.name}</span>
+                        <span className="text-[13px]">
+                          {student.class?.name}
+                        </span>
                       ) : (
-                        <span className="text-[12px] text-muted-foreground">Not enrolled</span>
+                        <span className="text-muted-foreground text-[12px]">
+                          Not enrolled
+                        </span>
                       )}
                     </TableCell>
-                    <TableCell className="hidden text-muted-foreground md:table-cell">
+                    <TableCell className="text-muted-foreground hidden md:table-cell">
                       {student.guardianPhone || "—"}
                     </TableCell>
                     <TableCell className="text-right">
@@ -362,12 +402,17 @@ export default function Students() {
                             <Pencil className="size-4" aria-hidden="true" />
                             Edit details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => openEnroll(student)}>
+                          <DropdownMenuItem
+                            onSelect={() => openEnroll(student)}
+                          >
                             <BookOpen className="size-4" aria-hidden="true" />
                             Enroll in class
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem variant="destructive" onSelect={() => remove(student)}>
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onSelect={() => remove(student)}
+                          >
                             <Trash2 className="size-4" aria-hidden="true" />
                             Delete student
                           </DropdownMenuItem>
@@ -399,7 +444,9 @@ export default function Students() {
                 <Input
                   id="student-name"
                   value={form.name}
-                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, name: event.target.value })
+                  }
                   placeholder="Priya Sharma"
                   required
                 />
@@ -410,7 +457,9 @@ export default function Students() {
                   id="student-email"
                   type="email"
                   value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, email: event.target.value })
+                  }
                   placeholder="priya@school.com"
                   required
                   disabled={Boolean(editId)}
@@ -421,7 +470,9 @@ export default function Students() {
                 <Input
                   id="student-roll"
                   value={form.rollNumber}
-                  onChange={(event) => setForm({ ...form, rollNumber: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, rollNumber: event.target.value })
+                  }
                   placeholder="S-1024"
                   required
                 />
@@ -431,7 +482,9 @@ export default function Students() {
                 <Input
                   id="student-batch"
                   value={form.batch}
-                  onChange={(event) => setForm({ ...form, batch: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, batch: event.target.value })
+                  }
                   placeholder="Batch A"
                   required
                 />
@@ -440,20 +493,26 @@ export default function Students() {
                 <Label>Class</Label>
                 <Select
                   value={form.className}
-                  onValueChange={(value) => setForm({ ...form, className: value })}
+                  onValueChange={(value) =>
+                    setForm({ ...form, className: value })
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select class" />
                   </SelectTrigger>
                   <SelectContent>
                     {classes.length === 0 ? (
-                      <div className="px-2 py-3 text-center text-[13px] text-muted-foreground">
+                      <div className="text-muted-foreground px-2 py-3 text-center text-[13px]">
                         No classes yet
                       </div>
                     ) : (
                       classes.map((cls) => (
                         <SelectItem key={cls.id} value={cls.id}>
-                          <SubjectIcon subject={cls.subject} name={cls.name} plain />
+                          <SubjectIcon
+                            subject={cls.subject}
+                            name={cls.name}
+                            plain
+                          />
                           {cls.name} ({cls.batch})
                         </SelectItem>
                       ))
@@ -466,7 +525,9 @@ export default function Students() {
                 <Input
                   id="student-guardian"
                   value={form.guardianPhone}
-                  onChange={(event) => setForm({ ...form, guardianPhone: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, guardianPhone: event.target.value })
+                  }
                   placeholder="+91 98xxx xxxxx"
                 />
               </div>
@@ -476,21 +537,32 @@ export default function Students() {
                   <Input
                     id="student-password"
                     value={form.password}
-                    onChange={(event) => setForm({ ...form, password: event.target.value })}
+                    onChange={(event) =>
+                      setForm({ ...form, password: event.target.value })
+                    }
                     placeholder="password123"
                   />
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-muted-foreground text-[11px]">
                     Leave blank to use the default password.
                   </p>
                 </div>
               )}
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+                {saving && (
+                  <Loader2
+                    className="size-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
                 {editId ? "Save changes" : "Add student"}
               </Button>
             </DialogFooter>
@@ -498,12 +570,16 @@ export default function Students() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(enrollTarget)} onOpenChange={(value) => !value && setEnrollTarget(null)}>
+      <Dialog
+        open={Boolean(enrollTarget)}
+        onOpenChange={(value) => !value && setEnrollTarget(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Enroll in a class</DialogTitle>
             <DialogDescription>
-              Add {enrollTarget?.name} to a class so they show up when taking attendance.
+              Add {enrollTarget?.name} to a class so they show up when taking
+              attendance.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
@@ -522,7 +598,7 @@ export default function Students() {
               </SelectContent>
             </Select>
             {alreadyEnrolled && (
-              <p className="pt-1 text-[11px] text-muted-foreground">
+              <p className="text-muted-foreground pt-1 text-[11px]">
                 Already enrolled in this class.
               </p>
             )}
@@ -531,8 +607,13 @@ export default function Students() {
             <Button variant="secondary" onClick={() => setEnrollTarget(null)}>
               Cancel
             </Button>
-            <Button onClick={enroll} disabled={!enrollClassId || enrolling || alreadyEnrolled}>
-              {enrolling && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+            <Button
+              onClick={enroll}
+              disabled={!enrollClassId || enrolling || alreadyEnrolled}
+            >
+              {enrolling && (
+                <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+              )}
               Enroll
             </Button>
           </DialogFooter>

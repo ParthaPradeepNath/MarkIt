@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
+
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const tones = {
   primary: "bg-primary/[0.08] text-primary ring-primary/15",
@@ -35,13 +37,17 @@ export default function StatCard({
     <Card className={cn("relative", className)}>
       <CardContent className="flex items-center justify-between gap-4">
         <div className="min-w-0 space-y-1.5">
-          <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+          <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
             {title}
           </p>
-          <p className="tnum text-[28px] leading-none font-semibold tracking-[-0.03em] text-foreground">
+          <p className="tnum text-foreground text-[28px] leading-none font-semibold tracking-[-0.03em]">
             {value}
           </p>
-          {sub && <p className="text-xs leading-relaxed text-muted-foreground">{sub}</p>}
+          {sub && (
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              {sub}
+            </p>
+          )}
           {action}
         </div>
         {Icon && (
@@ -51,7 +57,11 @@ export default function StatCard({
               tones[tone] || tones.primary
             )}
           >
-            <Icon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            <Icon
+              className="size-[18px]"
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
           </span>
         )}
       </CardContent>

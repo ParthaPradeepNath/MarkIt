@@ -1,5 +1,7 @@
-import { Inbox, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { Inbox, type LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 type EmptyStateProps = {
@@ -27,12 +29,12 @@ export default function EmptyState({
         className
       )}
     >
-      <div className="mb-3 flex size-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground ring-1 ring-border/60 ring-inset">
+      <div className="bg-muted text-muted-foreground ring-border/60 mb-3 flex size-11 items-center justify-center rounded-2xl ring-1 ring-inset">
         <Icon className="size-5" strokeWidth={1.7} aria-hidden="true" />
       </div>
-      <p className="text-[14px] font-medium text-foreground">{title}</p>
+      <p className="text-foreground text-[14px] font-medium">{title}</p>
       {description && (
-        <p className="mt-1 max-w-sm text-[13px] leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-1 max-w-sm text-[13px] leading-relaxed">
           {description}
         </p>
       )}

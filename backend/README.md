@@ -55,12 +55,12 @@ there is no ORM `pre-save` hook.
 
 ## Scripts
 
-| Command | Purpose |
-|---|---|
-| `bun run dev` | Start the API with file watching |
-| `bun run start` | Start the API |
-| `bun run typecheck` | Type-check all backend TypeScript |
-| `bun run seed` | Clear and recreate demo teacher, students, classes and attendance |
-| `bun run prisma:generate` | Regenerate Prisma Client after schema edits |
-| `bun run prisma:migrate` | Create/apply a migration in development |
-| `bun run prisma:studio` | Browse the database with Prisma Studio |
+| Command                   | Purpose                                                           |
+| ------------------------- | ----------------------------------------------------------------- |
+| `bun run dev`             | Start the API with file watching                                  |
+| `bun run start`           | Start the API                                                     |
+| `bun run typecheck`       | Type-check all backend TypeScript                                 |
+| `bun run seed`            | Clear and recreate demo teacher, students, classes and attendance |
+| `bun run prisma:generate` | Regenerate Prisma Client after schema edits                       |
+| `bun run prisma:migrate`  | Create/apply a migration in development                           |
+| `bun run prisma:studio`   | Browse the database with Prisma Studio                            |

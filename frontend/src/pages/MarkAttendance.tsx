@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+
 import { format } from "date-fns";
 import {
   CalendarCheck2,
@@ -16,15 +17,16 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 import api from "@/api/axios";
-import PageHeader from "@/components/PageHeader";
 import AttendanceRing from "@/components/AttendanceRing";
 import DatePicker from "@/components/DatePicker";
-import SubjectIcon from "@/components/SubjectIcon";
-import StatusBadge from "@/components/StatusBadge";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
+import PageHeader from "@/components/PageHeader";
 import { TableSkeleton } from "@/components/Skeletons";
+import StatusBadge from "@/components/StatusBadge";
+import SubjectIcon from "@/components/SubjectIcon";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,8 +40,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { getErrorMessage, initials, plural } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type {
   AttendanceRecord,
   AttendanceStatus,
@@ -57,19 +59,22 @@ const STATUSES: Array<{
     value: "present",
     label: "Present",
     icon: Check,
-    active: "border-emerald-500/40 bg-emerald-500/12 text-emerald-700 dark:text-emerald-300",
+    active:
+      "border-emerald-500/40 bg-emerald-500/12 text-emerald-700 dark:text-emerald-300",
   },
   {
     value: "absent",
     label: "Absent",
     icon: X,
-    active: "border-rose-500/40 bg-rose-500/12 text-rose-700 dark:text-rose-300",
+    active:
+      "border-rose-500/40 bg-rose-500/12 text-rose-700 dark:text-rose-300",
   },
   {
     value: "late",
     label: "Late",
     icon: Clock,
-    active: "border-amber-500/40 bg-amber-500/12 text-amber-700 dark:text-amber-300",
+    active:
+      "border-amber-500/40 bg-amber-500/12 text-amber-700 dark:text-amber-300",
   },
   {
     value: "leave",
@@ -86,9 +91,13 @@ export default function MarkAttendance() {
   const [classId, setClassId] = useState("");
   const [date, setDate] = useState(today());
   const [students, setStudents] = useState<Student[]>([]);
-  const [statusMap, setStatusMap] = useState<Record<string, AttendanceStatus>>({});
+  const [statusMap, setStatusMap] = useState<Record<string, AttendanceStatus>>(
+    {}
+  );
   const [remarkMap, setRemarkMap] = useState<Record<string, string>>({});
-  const [existing, setExisting] = useState<Record<string, AttendanceStatus>>({});
+  const [existing, setExisting] = useState<Record<string, AttendanceStatus>>(
+    {}
+  );
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(false);
@@ -129,7 +138,9 @@ export default function MarkAttendance() {
     api
       .get<ClassInfo>(`/classes/${classId}`)
       .then(({ data }) => setStudents(data.students || []))
-      .catch((err) => toast.error(getErrorMessage(err, "Could not load class students.")))
+      .catch((err) =>
+        toast.error(getErrorMessage(err, "Could not load class students."))
+      )
       .finally(() => setLoadingStudents(false));
   }, [classId]);
 
@@ -137,7 +148,9 @@ export default function MarkAttendance() {
     if (!classId || !date) return;
     setLoadingExisting(true);
     api
-      .get<AttendanceRecord[]>(`/attendance/class/${classId}`, { params: { date } })
+      .get<AttendanceRecord[]>(`/attendance/class/${classId}`, {
+        params: { date },
+      })
       .then(({ data }) => {
         const statuses: Record<string, AttendanceStatus> = {};
         const remarks: Record<string, string> = {};
@@ -181,7 +194,8 @@ export default function MarkAttendance() {
     };
   }, [statusMap, students.length]);
 
-  const allSet = students.length > 0 && students.every((student) => statusMap[student.id]);
+  const allSet =
+    students.length > 0 && students.every((student) => statusMap[student.id]);
 
   const markAll = (status: AttendanceStatus) => {
     setStatusMap((previous) => {
@@ -199,7 +213,9 @@ export default function MarkAttendance() {
     setRemarkMap((previous) => {
       const next: Record<string, string> = {};
       students.forEach((student) => {
-        next[student.id] = existing[student.id] ? previous[student.id] || "" : "";
+        next[student.id] = existing[student.id]
+          ? previous[student.id] || ""
+          : "";
       });
       return next;
     });
@@ -224,7 +240,9 @@ export default function MarkAttendance() {
       });
       setExisting(statusMap);
       setDirty(false);
-      toast.success(`Attendance saved for ${plural(students.length, "student")}`);
+      toast.success(
+        `Attendance saved for ${plural(students.length, "student")}`
+      );
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to save attendance."));
     } finally {
@@ -289,7 +307,7 @@ export default function MarkAttendance() {
       <Card>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,180px)_auto] lg:items-end">
           <div className="space-y-1.5">
-            <Label className="text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
+            <Label className="text-muted-foreground text-[11px] tracking-[0.06em] uppercase">
               Class
             </Label>
             <Select value={classId} onValueChange={setClassId}>
@@ -310,7 +328,7 @@ export default function MarkAttendance() {
           <div className="space-y-1.5">
             <Label
               htmlFor="mark-date"
-              className="text-[11px] tracking-[0.06em] text-muted-foreground uppercase"
+              className="text-muted-foreground text-[11px] tracking-[0.06em] uppercase"
             >
               Date
             </Label>
@@ -323,7 +341,11 @@ export default function MarkAttendance() {
                 className="flex-1"
               />
               {date !== today() && (
-                <Button variant="secondary" size="sm" onClick={() => setDate(today())}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setDate(today())}
+                >
                   Today
                 </Button>
               )}
@@ -331,16 +353,30 @@ export default function MarkAttendance() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
+            <Label className="text-muted-foreground text-[11px] tracking-[0.06em] uppercase">
               Quick actions
             </Label>
             <div className="flex flex-wrap gap-2">
-              <Button variant="secondary" size="sm" onClick={() => markAll("present")}>
-                <CheckCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => markAll("present")}
+              >
+                <CheckCheck
+                  className="size-3.5 text-emerald-600 dark:text-emerald-400"
+                  aria-hidden="true"
+                />
                 All present
               </Button>
-              <Button variant="secondary" size="sm" onClick={() => markAll("absent")}>
-                <X className="size-3.5 text-rose-600 dark:text-rose-400" aria-hidden="true" />
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => markAll("absent")}
+              >
+                <X
+                  className="size-3.5 text-rose-600 dark:text-rose-400"
+                  aria-hidden="true"
+                />
                 All absent
               </Button>
             </div>
@@ -352,15 +388,21 @@ export default function MarkAttendance() {
         <Card>
           <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/[0.08] text-primary ring-1 ring-primary/10 ring-inset">
-                <Users className="size-[19px]" strokeWidth={1.75} aria-hidden="true" />
+              <span className="bg-primary/[0.08] text-primary ring-primary/10 flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset">
+                <Users
+                  className="size-[19px]"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
               </span>
               <div className="min-w-0">
                 <p className="truncate text-[14px] font-semibold tracking-[-0.01em]">
                   {activeClass?.name}
                 </p>
-                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted-foreground">
-                  <span>{format(new Date(`${date}T00:00:00`), "EEEE, MMM d")}</span>
+                <p className="text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px]">
+                  <span>
+                    {format(new Date(`${date}T00:00:00`), "EEEE, MMM d")}
+                  </span>
                   <span aria-hidden="true">·</span>
                   <span>{plural(students.length, "student")}</span>
                   {activeClass?.schedule && (
@@ -379,7 +421,7 @@ export default function MarkAttendance() {
                   Already marked
                 </span>
               )}
-              <span className="tnum text-[12px] text-muted-foreground">
+              <span className="tnum text-muted-foreground text-[12px]">
                 {summary.marked}/{students.length} set
               </span>
             </div>
@@ -419,14 +461,14 @@ export default function MarkAttendance() {
               }
             />
           ) : (
-            <ul className="divide-y divide-border/60">
+            <ul className="divide-border/60 divide-y">
               {students.map((student) => {
                 const status = statusMap[student.id];
                 const saved = existing[student.id];
                 return (
                   <li
                     key={student.id}
-                    className="flex flex-col gap-3 px-4 py-3 transition-colors duration-150 hover:bg-muted/25 lg:flex-row lg:items-center lg:gap-4"
+                    className="hover:bg-muted/25 flex flex-col gap-3 px-4 py-3 transition-colors duration-150 lg:flex-row lg:items-center lg:gap-4"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <Avatar size="sm">
@@ -438,13 +480,13 @@ export default function MarkAttendance() {
                         <p className="flex items-center gap-2 truncate text-[13px] font-medium">
                           {student.name}
                           {saved === status && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">
+                            <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-normal">
                               <Check className="size-2.5" aria-hidden="true" />
                               saved
                             </span>
                           )}
                         </p>
-                        <p className="tnum truncate text-[11px] text-muted-foreground">
+                        <p className="tnum text-muted-foreground truncate text-[11px]">
                           Roll {student.rollNumber}
                           {student.batch ? ` · ${student.batch}` : ""}
                         </p>
@@ -452,7 +494,7 @@ export default function MarkAttendance() {
                     </div>
 
                     <div
-                      className="grid shrink-0 grid-cols-4 gap-1 rounded-lg bg-muted p-1"
+                      className="bg-muted grid shrink-0 grid-cols-4 gap-1 rounded-lg p-1"
                       role="group"
                       aria-label={`Attendance status for ${student.name}`}
                     >
@@ -463,15 +505,21 @@ export default function MarkAttendance() {
                             key={value}
                             type="button"
                             onClick={() => {
-                              setStatusMap((previous) => ({ ...previous, [student.id]: value }));
+                              setStatusMap((previous) => ({
+                                ...previous,
+                                [student.id]: value,
+                              }));
                               setDirty(true);
                             }}
                             aria-pressed={isActive}
                             title={label}
                             className={cn(
-                              "inline-flex h-7 cursor-pointer items-center justify-center gap-1 rounded-md border border-transparent px-2 text-[11px] font-medium outline-none transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:ring-2 focus-visible:ring-ring/40",
+                              "focus-visible:ring-ring/40 inline-flex h-7 cursor-pointer items-center justify-center gap-1 rounded-md border border-transparent px-2 text-[11px] font-medium transition-[background-color,border-color,color,box-shadow] duration-150 outline-none focus-visible:ring-2",
                               isActive
-                                ? cn("shadow-[0_1px_2px_oklch(0_0_0/0.08)]", active)
+                                ? cn(
+                                    "shadow-[0_1px_2px_oklch(0_0_0/0.08)]",
+                                    active
+                                  )
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
@@ -505,36 +553,52 @@ export default function MarkAttendance() {
 
       {students.length > 0 && (
         <div className="sticky bottom-3 z-20 sm:bottom-4">
-          <div className="mx-auto flex max-w-[720px] items-center gap-2 rounded-2xl border border-border/70 bg-popover/95 p-2.5 shadow-float backdrop-blur-xl sm:gap-4 sm:p-3">
+          <div className="border-border/70 bg-popover/95 shadow-float mx-auto flex max-w-[720px] items-center gap-2 rounded-2xl border p-2.5 backdrop-blur-xl sm:gap-4 sm:p-3">
             <div className="hidden min-w-0 flex-1 sm:block">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[13px] font-medium">
                   {summary.marked} of {students.length} marked
                 </p>
-                <span className="tnum text-[11px] text-muted-foreground">
+                <span className="tnum text-muted-foreground text-[11px]">
                   {summary.percentage ?? 0}% present
                 </span>
               </div>
-              <Progress value={summary.marked ? (summary.marked / students.length) * 100 : 0} className="mt-1.5" />
+              <Progress
+                value={
+                  summary.marked ? (summary.marked / students.length) * 100 : 0
+                }
+                className="mt-1.5"
+              />
             </div>
-            <p className="tnum min-w-0 flex-1 truncate text-[12px] text-muted-foreground sm:hidden">
-              {summary.marked}/{students.length} marked · {summary.percentage ?? 0}% present
+            <p className="tnum text-muted-foreground min-w-0 flex-1 truncate text-[12px] sm:hidden">
+              {summary.marked}/{students.length} marked ·{" "}
+              {summary.percentage ?? 0}% present
             </p>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               {dirty && (
-                <Button variant="secondary" size="sm" onClick={reset} aria-label="Reset changes">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={reset}
+                  aria-label="Reset changes"
+                >
                   <RotateCcw className="size-3.5" aria-hidden="true" />
                   <span className="hidden sm:inline">Reset</span>
                 </Button>
               )}
               <Button onClick={save} disabled={saving || !dirty}>
                 {saving ? (
-                  <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+                  <Loader2
+                    className="size-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
                 ) : (
                   <Save className="size-3.5" aria-hidden="true" />
                 )}
                 <span className="sm:hidden">{saving ? "Saving…" : "Save"}</span>
-                <span className="hidden sm:inline">{saving ? "Saving…" : "Save attendance"}</span>
+                <span className="hidden sm:inline">
+                  {saving ? "Saving…" : "Save attendance"}
+                </span>
               </Button>
             </div>
           </div>
@@ -542,7 +606,7 @@ export default function MarkAttendance() {
       )}
 
       {students.length > 0 && summary.remaining > 0 && (
-        <p className="flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
+        <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-[12px]">
           <TriangleAlert className="size-3.5" aria-hidden="true" />
           {plural(summary.remaining, "student")} still need a status.
         </p>

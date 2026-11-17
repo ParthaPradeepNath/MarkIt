@@ -4,15 +4,18 @@ import type { AttendanceStatus } from "@/types";
 const config = {
   present: {
     label: "Present",
-    className: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20 dark:text-emerald-400",
+    className:
+      "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20 dark:text-emerald-400",
   },
   absent: {
     label: "Absent",
-    className: "bg-rose-500/10 text-rose-700 ring-rose-500/20 dark:text-rose-400",
+    className:
+      "bg-rose-500/10 text-rose-700 ring-rose-500/20 dark:text-rose-400",
   },
   late: {
     label: "Late",
-    className: "bg-amber-500/10 text-amber-700 ring-amber-500/20 dark:text-amber-400",
+    className:
+      "bg-amber-500/10 text-amber-700 ring-amber-500/20 dark:text-amber-400",
   },
   leave: {
     label: "Leave",
@@ -26,7 +29,11 @@ type StatusBadgeProps = {
   className?: string;
 };
 
-export default function StatusBadge({ status, label, className }: StatusBadgeProps) {
+export default function StatusBadge({
+  status,
+  label,
+  className,
+}: StatusBadgeProps) {
   const c = config[status] || config.present;
   return (
     <span

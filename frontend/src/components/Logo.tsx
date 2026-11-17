@@ -1,18 +1,23 @@
 import type { SVGProps } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
  * MarkIt mark — a layered bookmark.
  * Inherits currentColor so it works on light, dark and tinted surfaces.
  */
-export function Logo({ className, strokeWidth = 2, ...props }: SVGProps<SVGSVGElement>) {
+export function Logo({
+  className,
+  strokeWidth = 2,
+  ...props
+}: SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={cn("shrink-0 text-primary", className)}
+      className={cn("text-primary shrink-0", className)}
       {...props}
     >
       <path
@@ -48,7 +53,7 @@ export function Brand({
     <div className={cn("flex items-center gap-2.5", className)}>
       <span
         className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-primary/[0.08] ring-1 ring-primary/15",
+          "bg-primary/[0.08] ring-primary/15 flex size-9 shrink-0 items-center justify-center rounded-[11px] ring-1",
           markClassName
         )}
       >
@@ -60,7 +65,9 @@ export function Brand({
             MarkIt
           </span>
           {subtitle && (
-            <span className="block text-[11px] leading-tight text-muted-foreground">{subtitle}</span>
+            <span className="text-muted-foreground block text-[11px] leading-tight">
+              {subtitle}
+            </span>
           )}
         </span>
       )}

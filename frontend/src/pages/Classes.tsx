@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Link } from "react-router-dom";
+
 import { format } from "date-fns";
 import {
   BookOpen,
@@ -14,13 +21,14 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 import api from "@/api/axios";
-import PageHeader from "@/components/PageHeader";
+import { useConfirm } from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import SubjectIcon from "@/components/SubjectIcon";
+import PageHeader from "@/components/PageHeader";
 import SchedulePicker from "@/components/SchedulePicker";
-import { useConfirm } from "@/components/ConfirmDialog";
+import SubjectIcon from "@/components/SubjectIcon";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,8 +52,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import { getErrorMessage, initials, plural } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { ClassInfo, Student } from "@/types";
 
 type ClassForm = {
@@ -56,7 +64,13 @@ type ClassForm = {
   scheduleTime: string;
 };
 
-const emptyForm: ClassForm = { name: "", subject: "", batch: "", scheduleDate: null, scheduleTime: "" };
+const emptyForm: ClassForm = {
+  name: "",
+  subject: "",
+  batch: "",
+  scheduleDate: null,
+  scheduleTime: "",
+};
 
 export default function Classes() {
   const confirm = useConfirm();
@@ -85,7 +99,9 @@ export default function Classes() {
       setClasses(classResponse.data);
       setAllStudents(studentResponse.data);
       setEnrollFor((current) =>
-        current ? classResponse.data.find((cls) => cls.id === current.id) || null : null
+        current
+          ? classResponse.data.find((cls) => cls.id === current.id) || null
+          : null
       );
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load classes."));
@@ -172,7 +188,9 @@ export default function Classes() {
     if (!enrollFor || selected.length === 0) return;
     setEnrolling(true);
     try {
-      await api.post(`/classes/${enrollFor.id}/enroll`, { studentIds: selected });
+      await api.post(`/classes/${enrollFor.id}/enroll`, {
+        studentIds: selected,
+      });
       toast.success(`Enrolled ${plural(selected.length, "student")}`);
       setSelected([]);
       load();
@@ -255,7 +273,10 @@ export default function Classes() {
           {classes.map((cls) => {
             const count = cls.students?.length || 0;
             return (
-              <Card key={cls.id} className="group/card transition-shadow duration-200 hover:shadow-elevated">
+              <Card
+                key={cls.id}
+                className="group/card hover:shadow-elevated transition-shadow duration-200"
+              >
                 <CardContent className="flex h-full flex-col gap-4">
                   <div className="flex items-start gap-3">
                     <SubjectIcon subject={cls.subject} name={cls.name} />
@@ -263,7 +284,7 @@ export default function Classes() {
                       <h3 className="truncate text-[14px] leading-snug font-semibold tracking-[-0.01em]">
                         {cls.name}
                       </h3>
-                      <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                      <p className="text-muted-foreground mt-0.5 truncate text-[12px]">
                         {[cls.subject, cls.batch].filter(Boolean).join(" · ")}
                       </p>
                     </div>
@@ -272,7 +293,7 @@ export default function Classes() {
                         <Button
                           variant="secondary"
                           size="icon-sm"
-                          className="-mt-1 -mr-1 text-muted-foreground"
+                          className="text-muted-foreground -mt-1 -mr-1"
                           aria-label={`Actions for ${cls.name}`}
                         >
                           <MoreHorizontal className="size-4" />
@@ -285,12 +306,18 @@ export default function Classes() {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/mark-attendance">
-                            <CalendarPlus className="size-4" aria-hidden="true" />
+                            <CalendarPlus
+                              className="size-4"
+                              aria-hidden="true"
+                            />
                             Mark attendance
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive" onSelect={() => remove(cls)}>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() => remove(cls)}
+                        >
                           <Trash2 className="size-4" aria-hidden="true" />
                           Delete class
                         </DropdownMenuItem>
@@ -299,8 +326,11 @@ export default function Classes() {
                   </div>
 
                   {cls.schedule && (
-                    <p className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-                      <CalendarRange className="size-3.5 shrink-0" aria-hidden="true" />
+                    <p className="text-muted-foreground flex items-center gap-1.5 text-[12px]">
+                      <CalendarRange
+                        className="size-3.5 shrink-0"
+                        aria-hidden="true"
+                      />
                       {cls.schedule}
                     </p>
                   )}
@@ -311,23 +341,26 @@ export default function Classes() {
                         <div className="flex items-center gap-1.5">
                           {(cls.students ?? []).slice(0, 4).map((student) => (
                             <Avatar key={student.id} size="sm">
-                              <AvatarFallback className="bg-muted text-[9px] font-semibold ring-1 ring-border/60 ring-inset">
+                              <AvatarFallback className="bg-muted ring-border/60 text-[9px] font-semibold ring-1 ring-inset">
                                 {initials(student.name)}
                               </AvatarFallback>
                             </Avatar>
                           ))}
                           {count > 4 && (
-                            <span className="flex size-6 items-center justify-center rounded-full bg-muted text-[9px] font-semibold text-muted-foreground ring-1 ring-border/60 ring-inset">
+                            <span className="bg-muted text-muted-foreground ring-border/60 flex size-6 items-center justify-center rounded-full text-[9px] font-semibold ring-1 ring-inset">
                               +{count - 4}
                             </span>
                           )}
                         </div>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-muted-foreground text-[11px]">
                           {plural(count, "student")}
                         </span>
                       </div>
                     ) : (
-                      <Badge variant="outline" className="text-muted-foreground">
+                      <Badge
+                        variant="outline"
+                        className="text-muted-foreground"
+                      >
                         No students
                       </Badge>
                     )}
@@ -352,7 +385,9 @@ export default function Classes() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create class</DialogTitle>
-            <DialogDescription>Add a class, then enroll students into it.</DialogDescription>
+            <DialogDescription>
+              Add a class, then enroll students into it.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={submit}>
             <div className="space-y-4">
@@ -361,7 +396,9 @@ export default function Classes() {
                 <Input
                   id="class-name"
                   value={form.name}
-                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, name: event.target.value })
+                  }
                   placeholder="Mathematics 101"
                   required
                 />
@@ -372,7 +409,9 @@ export default function Classes() {
                   <Input
                     id="class-subject"
                     value={form.subject}
-                    onChange={(event) => setForm({ ...form, subject: event.target.value })}
+                    onChange={(event) =>
+                      setForm({ ...form, subject: event.target.value })
+                    }
                     placeholder="Mathematics"
                     required
                   />
@@ -382,7 +421,9 @@ export default function Classes() {
                   <Input
                     id="class-batch"
                     value={form.batch}
-                    onChange={(event) => setForm({ ...form, batch: event.target.value })}
+                    onChange={(event) =>
+                      setForm({ ...form, batch: event.target.value })
+                    }
                     placeholder="Batch A"
                     required
                   />
@@ -394,21 +435,34 @@ export default function Classes() {
                   id="class-schedule"
                   date={form.scheduleDate}
                   time={form.scheduleTime}
-                  onDateChange={(scheduleDate) => setForm((current) => ({ ...current, scheduleDate }))}
-                  onTimeChange={(scheduleTime) => setForm((current) => ({ ...current, scheduleTime }))}
+                  onDateChange={(scheduleDate) =>
+                    setForm((current) => ({ ...current, scheduleDate }))
+                  }
+                  onTimeChange={(scheduleTime) =>
+                    setForm((current) => ({ ...current, scheduleTime }))
+                  }
                   className="w-full"
                 />
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   Optional · shown on class cards and attendance.
                 </p>
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+                {saving && (
+                  <Loader2
+                    className="size-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
                 Create class
               </Button>
             </DialogFooter>
@@ -429,14 +483,15 @@ export default function Classes() {
           <DialogHeader>
             <DialogTitle>{enrollFor?.name}</DialogTitle>
             <DialogDescription>
-              {plural(enrolledIds.length, "student")} enrolled · choose who to add or remove.
+              {plural(enrolledIds.length, "student")} enrolled · choose who to
+              add or remove.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
                 aria-hidden="true"
               />
               <Input
@@ -449,22 +504,22 @@ export default function Classes() {
               />
             </div>
 
-            <div className="max-h-[260px] min-h-[120px] overflow-y-auto overscroll-contain rounded-lg border border-border/70">
+            <div className="border-border/70 max-h-[260px] min-h-[120px] overflow-y-auto overscroll-contain rounded-lg border">
               {available.length === 0 ? (
-                <p className="px-4 py-8 text-center text-[13px] text-muted-foreground">
+                <p className="text-muted-foreground px-4 py-8 text-center text-[13px]">
                   {allStudents.length === 0
                     ? "No students exist yet."
                     : "Every matching student is already enrolled."}
                 </p>
               ) : (
-                <ul className="divide-y divide-border/60">
+                <ul className="divide-border/60 divide-y">
                   {available.map((student) => {
                     const checked = selected.includes(student.id);
                     return (
                       <li key={student.id}>
                         <label
                           className={cn(
-                            "flex cursor-pointer items-center gap-3 px-3 py-2 transition-colors duration-150 hover:bg-muted/60",
+                            "hover:bg-muted/60 flex cursor-pointer items-center gap-3 px-3 py-2 transition-colors duration-150",
                             checked && "bg-primary/[0.04]"
                           )}
                         >
@@ -484,10 +539,10 @@ export default function Classes() {
                             </AvatarFallback>
                           </Avatar>
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[13px] font-medium text-foreground">
+                            <span className="text-foreground block truncate text-[13px] font-medium">
                               {student.name}
                             </span>
-                            <span className="block truncate text-[11px] text-muted-foreground">
+                            <span className="text-muted-foreground block truncate text-[11px]">
                               Roll {student.rollNumber}
                               {student.batch ? ` · ${student.batch}` : ""}
                             </span>
@@ -502,10 +557,10 @@ export default function Classes() {
 
             {enrolledIds.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
                   Enrolled
                 </p>
-                <ul className="max-h-[132px] divide-y divide-border/60 overflow-y-auto overscroll-contain rounded-lg border border-border/70">
+                <ul className="divide-border/60 border-border/70 max-h-[132px] divide-y overflow-y-auto overscroll-contain rounded-lg border">
                   {(enrollFor?.students ?? []).map((student) => (
                     <li
                       key={student.id}
@@ -520,7 +575,7 @@ export default function Classes() {
                         <span className="block truncate text-[13px] font-medium">
                           {student.name}
                         </span>
-                        <span className="block truncate text-[11px] text-muted-foreground">
+                        <span className="text-muted-foreground block truncate text-[11px]">
                           Roll {student.rollNumber}
                         </span>
                       </span>
@@ -528,7 +583,9 @@ export default function Classes() {
                         variant="secondary"
                         size="icon-xs"
                         className="text-muted-foreground hover:text-destructive"
-                        onClick={() => enrollFor && removeFromClass(enrollFor, student)}
+                        onClick={() =>
+                          enrollFor && removeFromClass(enrollFor, student)
+                        }
                         aria-label={`Remove ${student.name}`}
                       >
                         <X className="size-3.5" />
@@ -544,7 +601,10 @@ export default function Classes() {
             <Button variant="secondary" onClick={() => setEnrollFor(null)}>
               Done
             </Button>
-            <Button onClick={doEnroll} disabled={selected.length === 0 || enrolling}>
+            <Button
+              onClick={doEnroll}
+              disabled={selected.length === 0 || enrolling}
+            >
               {enrolling ? (
                 <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
               ) : (

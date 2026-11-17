@@ -1,9 +1,15 @@
 import { useState } from "react";
+
 import { format, isSameDay, startOfToday } from "date-fns";
 import { CalendarClock } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +75,10 @@ export default function SchedulePicker({
           variant="secondary"
           className={cn("min-w-0 justify-start gap-2 font-normal", className)}
         >
-          <CalendarClock className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <CalendarClock
+            className="text-muted-foreground size-3.5 shrink-0"
+            aria-hidden="true"
+          />
           <span className={cn("truncate", !date && "text-muted-foreground")}>
             {date
               ? `${format(date, "EEE, MMM d")}${time ? ` · ${time}` : ""}`
@@ -122,10 +131,21 @@ export default function SchedulePicker({
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
-          <Button type="button" size="sm" variant="secondary" onClick={clear} disabled={!date}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={clear}
+            disabled={!date}
+          >
             Clear
           </Button>
-          <Button type="button" size="sm" onClick={() => setOpen(false)} disabled={!date}>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setOpen(false)}
+            disabled={!date}
+          >
             Done
           </Button>
         </div>

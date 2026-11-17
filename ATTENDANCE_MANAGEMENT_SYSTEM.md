@@ -1,9 +1,11 @@
 # Attendance Management System
 
 ## Project Title
+
 Attendance Management System
 
 ## Project Description
+
 An end-to-end React + Express application backed by PostgreSQL (Neon) through Prisma ORM that lets **teachers** manage classroom attendance digitally. Teachers can create classes, enroll students, record daily attendance, correct past records, and view comprehensive student and batch-level attendance reports. Students get a read-only dashboard to track their own attendance status.
 
 **Impact:** Eliminates manual attendance registers, reduces errors, saves teacher time, and provides instant attendance analytics.
@@ -13,13 +15,14 @@ An end-to-end React + Express application backed by PostgreSQL (Neon) through Pr
 ---
 
 ## Tech Stack
-| Layer      | Technology                          |
-|------------|-------------------------------------|
-| Frontend   | React + Vite                        |
-| Backend    | Node.js + Express                   |
-| Database   | PostgreSQL (Neon) + Prisma ORM      |
-| Auth       | JWT (JSON Web Tokens) + bcrypt      |
-| Charts     | Recharts (attendance trend reports) |
+
+| Layer    | Technology                          |
+| -------- | ----------------------------------- |
+| Frontend | React + Vite                        |
+| Backend  | Node.js + Express                   |
+| Database | PostgreSQL (Neon) + Prisma ORM      |
+| Auth     | JWT (JSON Web Tokens) + bcrypt      |
+| Charts   | Recharts (attendance trend reports) |
 
 ---
 
@@ -29,6 +32,7 @@ The authoritative schema lives in `backend/prisma/schema.prisma` and is applied
 with Prisma Migrate. IDs are `cuid()` strings; relations are explicit.
 
 ### 1. `User`
+
 Teachers and students who can log in.
 
 ```prisma
@@ -45,6 +49,7 @@ model User {
 ```
 
 ### 2. `Student`
+
 Profile details of enrolled students. One class per student via `classId`.
 
 ```prisma
@@ -62,6 +67,7 @@ model Student {
 ```
 
 ### 3. `Class`
+
 Classes created by teachers. Enrolled students are the inverse of
 `Student.class`, exposed as `students`.
 
@@ -80,6 +86,7 @@ model Class {
 ```
 
 ### 4. `Attendance`
+
 Daily attendance records (one record per student per class per day).
 
 ```prisma
@@ -100,21 +107,22 @@ model Attendance {
 
 ## Backend API Endpoints
 
-| Method | Endpoint                     | Description                                             | Auth |
-|--------|------------------------------|---------------------------------------------------------|------|
-| POST   | `/api/auth/login`            | Teacher/student login, returns JWT                      | —    |
-| GET    | `/api/classes`               | List classes (filtered by teacher/student)              | JWT  |
-| POST   | `/api/classes`               | Create a new class                                      | JWT  |
-| GET    | `/api/students`              | List students (filter by class/batch)                   | JWT  |
-| POST   | `/api/students`              | Enroll a new student                                    | JWT  |
-| POST   | `/api/attendance`            | Mark attendance (bulk, for a class + date)              | JWT  |
-| PUT    | `/api/attendance/:id`        | Correct/edit an existing attendance record              | JWT  |
-| GET    | `/api/attendance/student/:id`| Attendance history for a single student                 | JWT  |
-| GET    | `/api/reports/attendance`    | Aggregated attendance reports (student/batch/class)     | JWT  |
+| Method | Endpoint                      | Description                                         | Auth |
+| ------ | ----------------------------- | --------------------------------------------------- | ---- |
+| POST   | `/api/auth/login`             | Teacher/student login, returns JWT                  | —    |
+| GET    | `/api/classes`                | List classes (filtered by teacher/student)          | JWT  |
+| POST   | `/api/classes`                | Create a new class                                  | JWT  |
+| GET    | `/api/students`               | List students (filter by class/batch)               | JWT  |
+| POST   | `/api/students`               | Enroll a new student                                | JWT  |
+| POST   | `/api/attendance`             | Mark attendance (bulk, for a class + date)          | JWT  |
+| PUT    | `/api/attendance/:id`         | Correct/edit an existing attendance record          | JWT  |
+| GET    | `/api/attendance/student/:id` | Attendance history for a single student             | JWT  |
+| GET    | `/api/reports/attendance`     | Aggregated attendance reports (student/batch/class) | JWT  |
 
 ### Example Requests
 
 **Login**
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -123,6 +131,7 @@ Content-Type: application/json
 ```
 
 **Mark Attendance (bulk)**
+
 ```http
 POST /api/attendance
 Authorization: Bearer <JWT>
@@ -138,6 +147,7 @@ Authorization: Bearer <JWT>
 ```
 
 **Correct a record**
+
 ```http
 PUT /api/attendance/64xyz...
 Authorization: Bearer <JWT>
@@ -149,18 +159,18 @@ Authorization: Bearer <JWT>
 
 ## Frontend Pages
 
-| Page                | Description                                                                 |
-|---------------------|-----------------------------------------------------------------------------|
-| Login               | JWT-based login; role-based redirect (teacher → dashboard, student → dashboard) |
-| Teacher Dashboard   | Overview: class stats, today's attendance, quick actions, low-attendance alerts |
-| Student Dashboard   | Personal attendance percentage, monthly trend chart (Recharts)              |
-| Students            | List/enroll students, filter by class or batch                              |
-| Classes             | List/create classes, view enrolled students                                 |
-| Attendance          | Records view + filter by class/date/status                                  |
-| Mark Attendance     | Per-class daily marking UI (bulk present/absent toggles)                    |
-| Attendance History  | Per-student or per-class history with corrections                           |
-| Reports             | Attendance reports with Recharts visualizations (student, batch, class)     |
-| Profile             | View/edit own profile, change password                                      |
+| Page               | Description                                                                     |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Login              | JWT-based login; role-based redirect (teacher → dashboard, student → dashboard) |
+| Teacher Dashboard  | Overview: class stats, today's attendance, quick actions, low-attendance alerts |
+| Student Dashboard  | Personal attendance percentage, monthly trend chart (Recharts)                  |
+| Students           | List/enroll students, filter by class or batch                                  |
+| Classes            | List/create classes, view enrolled students                                     |
+| Attendance         | Records view + filter by class/date/status                                      |
+| Mark Attendance    | Per-class daily marking UI (bulk present/absent toggles)                        |
+| Attendance History | Per-student or per-class history with corrections                               |
+| Reports            | Attendance reports with Recharts visualizations (student, batch, class)         |
+| Profile            | View/edit own profile, change password                                          |
 
 ---
 
@@ -227,13 +237,15 @@ markit/
 ---
 
 ## Optional AI Enhancements
+
 1. **Low-attendance identification** — automatically flag students below a threshold (e.g., < 75%) and surface them on the Teacher Dashboard with alerts.
 2. **Attendance summaries** — generate daily/weekly/monthly summaries in natural language for teachers and parents.
-3. *(Stretch)* — LLM-generated personalized notes/reminders for at-risk students.
+3. _(Stretch)_ — LLM-generated personalized notes/reminders for at-risk students.
 
 ---
 
 ## Future Scope / Extensions
+
 - Parent portal with read-only attendance access
 - QR-code / face-recognition based attendance capture
 - SMS/email notifications for absenteeism

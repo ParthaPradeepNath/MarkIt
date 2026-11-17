@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+
 import { prisma } from "../config/db.js";
 import { errorMessage } from "../lib/error.js";
 
@@ -42,7 +43,9 @@ export const createClass = async (req: Request, res: Response) => {
   try {
     const { name, subject, batch, schedule } = req.body;
     if (!name || !subject || !batch) {
-      return res.status(400).json({ message: "Name, subject and batch are required" });
+      return res
+        .status(400)
+        .json({ message: "Name, subject and batch are required" });
     }
     const cls = await prisma.class.create({
       data: { name, subject, batch, schedule, teacherId: req.user.id },
@@ -60,7 +63,9 @@ export const enrollStudents = async (req: Request, res: Response) => {
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
     if (cls.teacherId !== req.user.id) {
-      return res.status(403).json({ message: "You can only manage your own classes" });
+      return res
+        .status(403)
+        .json({ message: "You can only manage your own classes" });
     }
     if (!Array.isArray(studentIds) || studentIds.length === 0) {
       return res.status(400).json({ message: "studentIds array is required" });
@@ -87,7 +92,9 @@ export const removeStudentFromClass = async (req: Request, res: Response) => {
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
     if (cls.teacherId !== req.user.id) {
-      return res.status(403).json({ message: "You can only manage your own classes" });
+      return res
+        .status(403)
+        .json({ message: "You can only manage your own classes" });
     }
     await prisma.student.updateMany({
       where: { id: studentId, classId: cls.id },
@@ -108,7 +115,9 @@ export const deleteClass = async (req: Request, res: Response) => {
     const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
     if (cls.teacherId !== req.user.id) {
-      return res.status(403).json({ message: "You can only delete your own classes" });
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own classes" });
     }
     // ON DELETE rules clear Student.classId and remove attendance for this class.
     await prisma.class.delete({ where: { id: cls.id } });

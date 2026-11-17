@@ -1,8 +1,8 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 import AttendanceRing from "@/components/AttendanceRing";
 import StatusBadge from "@/components/StatusBadge";
 import SubjectIcon from "@/components/SubjectIcon";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { AttendanceStatus } from "@/types";
 
@@ -12,10 +12,30 @@ import type { AttendanceStatus } from "@/types";
  * shares one grid so avatars, names and statuses line up, with an even inset
  * around the whole card.
  */
-const rollCall: Array<{ name: string; roll: string; status: AttendanceStatus; tone: string }> = [
-  { name: "Arjun Sharma", roll: "B01", status: "present", tone: "bg-sky-500/15 text-sky-600 dark:text-sky-400" },
-  { name: "Priya Patel", roll: "B02", status: "present", tone: "bg-violet-500/15 text-violet-600 dark:text-violet-400" },
-  { name: "Rahul Verma", roll: "B03", status: "late", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
+const rollCall: Array<{
+  name: string;
+  roll: string;
+  status: AttendanceStatus;
+  tone: string;
+}> = [
+  {
+    name: "Arjun Sharma",
+    roll: "B01",
+    status: "present",
+    tone: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+  },
+  {
+    name: "Priya Patel",
+    roll: "B02",
+    status: "present",
+    tone: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+  },
+  {
+    name: "Rahul Verma",
+    roll: "B03",
+    status: "late",
+    tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  },
 ];
 
 export default function LoginMockup({ className }: { className?: string }) {
@@ -23,13 +43,13 @@ export default function LoginMockup({ className }: { className?: string }) {
     <div
       aria-hidden="true"
       className={cn(
-        "relative w-full max-w-[440px] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-elevated",
+        "border-border/70 bg-card shadow-elevated relative w-full max-w-[440px] overflow-hidden rounded-2xl border",
         className
       )}
     >
       {/* Quiet browser chrome: centered URL pill, no invented toolbar. */}
-      <div className="flex h-9 items-center justify-center border-b border-border/60 bg-muted/25">
-        <span className="tnum rounded-full bg-muted/70 px-3 py-0.5 text-[10px] text-muted-foreground">
+      <div className="border-border/60 bg-muted/25 flex h-9 items-center justify-center border-b">
+        <span className="tnum bg-muted/70 text-muted-foreground rounded-full px-3 py-0.5 text-[10px]">
           markit.app/attendance
         </span>
       </div>
@@ -46,43 +66,48 @@ export default function LoginMockup({ className }: { className?: string }) {
             strokeWidth={1.8}
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] leading-tight font-semibold text-foreground">
+            <p className="text-foreground truncate text-[13px] leading-tight font-semibold">
               Mathematics 101
             </p>
-            <p className="mt-1 truncate text-[11px] leading-tight text-muted-foreground">
+            <p className="text-muted-foreground mt-1 truncate text-[11px] leading-tight">
               Batch A · 25 students
             </p>
           </div>
         </div>
 
-        <div className="my-4 border-t border-border/60" />
+        <div className="border-border/60 my-4 border-t" />
 
         {/* Payoff: one big number, the count beneath it, a quiet progress line. */}
         <div className="flex items-center gap-5">
           <AttendanceRing value={92} size={82} stroke={8} label="Today" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+            <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
               Today&apos;s attendance
             </p>
-            <p className="mt-1.5 text-[16px] leading-tight font-semibold tracking-[-0.02em] text-foreground">
+            <p className="text-foreground mt-1.5 text-[16px] leading-tight font-semibold tracking-[-0.02em]">
               23 of 25 present
             </p>
             <Progress value={92} className="mt-3" />
           </div>
         </div>
 
-        <div className="my-4 border-t border-border/60" />
+        <div className="border-border/60 my-4 border-t" />
 
         {/* Roll call: one grid template for every row so the columns align. */}
         <div>
-          <p className="mb-2 text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+          <p className="text-muted-foreground mb-2 text-[11px] font-medium tracking-[0.06em] uppercase">
             Roll call
           </p>
           <div className="space-y-0.5">
             {rollCall.map(({ name, roll, status, tone }) => (
-              <div key={roll} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-1.5">
+              <div
+                key={roll}
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-1.5"
+              >
                 <Avatar size="sm">
-                  <AvatarFallback className={cn("text-[10px] font-medium", tone)}>
+                  <AvatarFallback
+                    className={cn("text-[10px] font-medium", tone)}
+                  >
                     {name
                       .split(" ")
                       .map((part) => part[0])
@@ -90,10 +115,10 @@ export default function LoginMockup({ className }: { className?: string }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-[12px] leading-tight font-medium text-foreground">
+                  <p className="text-foreground truncate text-[12px] leading-tight font-medium">
                     {name}
                   </p>
-                  <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                  <p className="text-muted-foreground mt-0.5 text-[10px] leading-tight">
                     Roll {roll}
                   </p>
                 </div>

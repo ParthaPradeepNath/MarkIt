@@ -1,5 +1,13 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
+
 import { AlertTriangle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,9 +39,9 @@ type PendingConfirm = {
   tone?: ConfirmTone;
 };
 
-const ConfirmContext = createContext<(options: ConfirmOptions) => Promise<boolean>>(
-  () => Promise.resolve(true)
-);
+const ConfirmContext = createContext<
+  (options: ConfirmOptions) => Promise<boolean>
+>(() => Promise.resolve(true));
 
 export function ConfirmProvider({ children }: { children: ReactNode }) {
   const [pending, setPending] = useState<PendingConfirm | null>(null);
@@ -43,9 +51,12 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
       setPending({
         resolve,
         title: typeof options === "string" ? options : options?.title,
-        description: typeof options === "object" ? options?.description : undefined,
-        confirmLabel: typeof options === "object" ? options?.confirmLabel : undefined,
-        cancelLabel: typeof options === "object" ? options?.cancelLabel : undefined,
+        description:
+          typeof options === "object" ? options?.description : undefined,
+        confirmLabel:
+          typeof options === "object" ? options?.confirmLabel : undefined,
+        cancelLabel:
+          typeof options === "object" ? options?.cancelLabel : undefined,
         tone: typeof options === "object" ? options?.tone : "danger",
       });
     });
@@ -67,11 +78,15 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             <div
               className={
                 tone === "danger"
-                  ? "flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive ring-1 ring-destructive/15 ring-inset"
-                  : "flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/15 ring-inset"
+                  ? "bg-destructive/10 text-destructive ring-destructive/15 flex size-10 shrink-0 items-center justify-center rounded-full ring-1 ring-inset"
+                  : "bg-primary/10 text-primary ring-primary/15 flex size-10 shrink-0 items-center justify-center rounded-full ring-1 ring-inset"
               }
             >
-              <AlertTriangle className="size-5" strokeWidth={1.75} aria-hidden="true" />
+              <AlertTriangle
+                className="size-5"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
             </div>
             <DialogHeader>
               <DialogTitle>{pending?.title || "Are you sure?"}</DialogTitle>

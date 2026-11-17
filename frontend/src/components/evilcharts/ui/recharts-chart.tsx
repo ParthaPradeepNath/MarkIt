@@ -1,8 +1,10 @@
 "use client";
 
-import * as RechartsPrimitive from "recharts";
-import { cn } from "@/lib/utils";
 import * as React from "react";
+
+import * as RechartsPrimitive from "recharts";
+
+import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -16,7 +18,8 @@ type ThemeColorsBase = {
 
 // Require at least one theme key
 type AtLeastOneThemeColor = {
-  [K in ThemeKey]: Required<Pick<ThemeColorsBase, K>> & Partial<Omit<ThemeColorsBase, K>>;
+  [K in ThemeKey]: Required<Pick<ThemeColorsBase, K>> &
+    Partial<Omit<ThemeColorsBase, K>>;
 }[ThemeKey];
 
 const VALID_THEME_KEYS = Object.keys(THEMES) as ThemeKey[];
@@ -26,12 +29,12 @@ function validateChartConfigColors(config: ChartConfig): void {
   for (const [key, value] of Object.entries(config)) {
     if (value.colors) {
       const hasValidThemeKey = VALID_THEME_KEYS.some(
-        (themeKey) => value.colors?.[themeKey] !== undefined,
+        (themeKey) => value.colors?.[themeKey] !== undefined
       );
 
       if (!hasValidThemeKey) {
         throw new Error(
-          `[EvilCharts] Invalid chart config for "${key}": colors object must have at least one theme key (${VALID_THEME_KEYS.join(", ")}). Received empty object or invalid keys.`,
+          `[EvilCharts] Invalid chart config for "${key}": colors object must have at least one theme key (${VALID_THEME_KEYS.join(", ")}). Received empty object or invalid keys.`
         );
       }
     }
@@ -111,7 +114,7 @@ function ChartContainer({
           "min-h-0 w-full flex-1",
           "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border relative flex flex-col justify-center text-xs [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           !footer && "aspect-video",
-          className,
+          className
         )}
         {...props}
       >
@@ -170,7 +173,9 @@ function distributeColors(colorsArray: string[], maxCount: number): string[] {
 }
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([, config]) => config.colors);
+  const colorConfig = Object.entries(config).filter(
+    ([, config]) => config.colors
+  );
 
   if (!colorConfig.length) {
     return null;
@@ -180,7 +185,11 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     colorConfig
       .flatMap(([key, itemConfig]) => {
         const colorsArray = itemConfig.colors?.[theme];
-        if (!colorsArray || !Array.isArray(colorsArray) || colorsArray.length === 0) {
+        if (
+          !colorsArray ||
+          !Array.isArray(colorsArray) ||
+          colorsArray.length === 0
+        ) {
           return [];
         }
 
@@ -190,7 +199,9 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         // Distribute colors evenly across all required slots
         const distributedColors = distributeColors(colorsArray, maxCount);
 
-        return distributedColors.map((color, index) => `  --color-${key}-${index}: ${color};`);
+        return distributedColors.map(
+          (color, index) => `  --color-${key}-${index}: ${color};`
+        );
       })
       .filter(Boolean)
       .join("\n");
@@ -198,7 +209,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const css = Object.entries(THEMES)
     .map(
       ([theme, prefix]) =>
-        `${prefix} [data-chart=${id}] {\n${generateCssVars(theme as keyof typeof THEMES)}\n}`,
+        `${prefix} [data-chart=${id}] {\n${generateCssVars(theme as keyof typeof THEMES)}\n}`
     )
     .join("\n");
 
@@ -206,26 +217,37 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 };
 
 // Helper to extract item config from a payload.
-export function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
+export function getPayloadConfigFromPayload(
+  config: ChartConfig,
+  payload: unknown,
+  key: string
+) {
   if (typeof payload !== "object" || payload === null) {
     return undefined;
   }
 
   const payloadPayload =
-    "payload" in payload && typeof payload.payload === "object" && payload.payload !== null
+    "payload" in payload &&
+    typeof payload.payload === "object" &&
+    payload.payload !== null
       ? payload.payload
       : undefined;
 
   let configLabelKey: string = key;
 
-  if (key in payload && typeof payload[key as keyof typeof payload] === "string") {
+  if (
+    key in payload &&
+    typeof payload[key as keyof typeof payload] === "string"
+  ) {
     configLabelKey = payload[key as keyof typeof payload] as string;
   } else if (
     payloadPayload &&
     key in payloadPayload &&
     typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
   ) {
-    configLabelKey = payloadPayload[key as keyof typeof payloadPayload] as string;
+    configLabelKey = payloadPayload[
+      key as keyof typeof payloadPayload
+    ] as string;
   }
 
   return configLabelKey in config ? config[configLabelKey] : config[key];
@@ -239,13 +261,19 @@ function axisValueToPercentFormatter(value: number) {
 // Get max colors count across all themes for a config entry
 function getColorsCount(config: ChartConfig[string]): number {
   if (!config.colors) return 1;
-  const counts = VALID_THEME_KEYS.map((theme) => config.colors?.[theme]?.length ?? 0);
+  const counts = VALID_THEME_KEYS.map(
+    (theme) => config.colors?.[theme]?.length ?? 0
+  );
   return Math.max(...counts, 1);
 }
 
 // Generate random loading data for skeleton/loading state
 // min/max represent percentage of the range (0-100), defaults to 20-80 for realistic look
-export const getLoadingData = (points: number = 10, min: number = 0, max: number = 70) => {
+export const getLoadingData = (
+  points: number = 10,
+  min: number = 0,
+  max: number = 70
+) => {
   const range = max - min;
   return Array.from({ length: points }, () => ({
     loading: Math.floor(Math.random() * range) + min,

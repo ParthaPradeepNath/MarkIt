@@ -1,12 +1,13 @@
 import express from "express";
+
 import {
+  deleteAttendance,
+  getClassAttendance,
+  getStudentAttendance,
   markAttendance,
   updateAttendance,
-  getStudentAttendance,
-  getClassAttendance,
-  deleteAttendance,
 } from "../controllers/attendanceController.js";
-import { protect, authorize } from "../middleware/auth.js";
+import { authorize, protect } from "../middleware/auth.js";
 
 const router = express.Router();
 

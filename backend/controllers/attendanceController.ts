@@ -1,9 +1,10 @@
 import type { Request, Response } from "express";
+
+import { prisma } from "../config/db.js";
 import type { AttendanceStatus } from "../generated/prisma/client";
 import { Prisma } from "../generated/prisma/client";
-import { prisma } from "../config/db.js";
-import { errorMessage } from "../lib/error.js";
 import { isAttendanceStatus } from "../lib/attendance.js";
+import { errorMessage } from "../lib/error.js";
 import { queryString } from "../lib/http.js";
 
 const attendanceInclude = {
@@ -22,12 +23,16 @@ export const markAttendance = async (req: Request, res: Response) => {
   try {
     const { classId, date, records } = req.body;
     if (!classId || !date || !Array.isArray(records) || records.length === 0) {
-      return res.status(400).json({ message: "classId, date and records are required" });
+      return res
+        .status(400)
+        .json({ message: "classId, date and records are required" });
     }
     const cls = await prisma.class.findUnique({ where: { id: classId } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
     if (cls.teacherId !== req.user.id) {
-      return res.status(403).json({ message: "Only the class teacher can mark attendance" });
+      return res
+        .status(403)
+        .json({ message: "Only the class teacher can mark attendance" });
     }
     const day = normalizeDate(date);
     const saved = [];
@@ -73,12 +78,17 @@ export const markAttendance = async (req: Request, res: Response) => {
 export const updateAttendance = async (req: Request, res: Response) => {
   try {
     const { status, remark } = req.body;
-    const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
-    if (!record) return res.status(404).json({ message: "Attendance record not found" });
+    const record = await prisma.attendance.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!record)
+      return res.status(404).json({ message: "Attendance record not found" });
     if (status && !isAttendanceStatus(status)) {
       return res.status(400).json({ message: `Invalid status: ${status}` });
     }
-    const data: Prisma.AttendanceUncheckedUpdateInput = { markedById: req.user.id };
+    const data: Prisma.AttendanceUncheckedUpdateInput = {
+      markedById: req.user.id,
+    };
     if (status) data.status = status as AttendanceStatus;
     if (remark !== undefined) data.remark = remark;
     const updated = await prisma.attendance.update({
@@ -100,7 +110,9 @@ export const getStudentAttendance = async (req: Request, res: Response) => {
       req.user.studentId === id ||
       req.user.student?.id === id;
     if (!allowed) {
-      return res.status(403).json({ message: "Not allowed to view this student's attendance" });
+      return res
+        .status(403)
+        .json({ message: "Not allowed to view this student's attendance" });
     }
     const records = await prisma.attendance.findMany({
       where: { studentId: id },
@@ -132,8 +144,11 @@ export const getClassAttendance = async (req: Request, res: Response) => {
 
 export const deleteAttendance = async (req: Request, res: Response) => {
   try {
-    const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
-    if (!record) return res.status(404).json({ message: "Attendance record not found" });
+    const record = await prisma.attendance.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!record)
+      return res.status(404).json({ message: "Attendance record not found" });
     await prisma.attendance.delete({ where: { id: record.id } });
     res.json({ message: "Attendance record deleted" });
   } catch (error) {

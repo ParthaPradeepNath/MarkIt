@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import type { AttendanceStatus } from "../generated/prisma/client";
+
 import { prisma } from "../config/db.js";
+import type { AttendanceStatus } from "../generated/prisma/client";
 import { errorMessage } from "../lib/error.js";
 import { queryString } from "../lib/http.js";
 
@@ -8,7 +9,12 @@ const PRESENT_LIKE: readonly AttendanceStatus[] = ["present", "late"];
 
 type ReportRecord = { status: AttendanceStatus; date: Date | string };
 
-type StudentRef = { name: string; rollNumber: string; id?: string; batch?: string };
+type StudentRef = {
+  name: string;
+  rollNumber: string;
+  id?: string;
+  batch?: string;
+};
 
 type GroupedRecords<T extends StudentRef = StudentRef> = {
   student: T;
@@ -26,7 +32,9 @@ const computeSummary = (records: readonly ReportRecord[]) => {
   records.forEach((r) => {
     counts[r.status] += 1;
   });
-  const attended = records.filter((r) => PRESENT_LIKE.includes(r.status)).length;
+  const attended = records.filter((r) =>
+    PRESENT_LIKE.includes(r.status)
+  ).length;
   const percentage = total > 0 ? Math.round((attended / total) * 100) : 0;
   return { total, ...counts, percentage, risk: total > 0 && percentage < 75 };
 };
@@ -42,7 +50,12 @@ const buildTrend = (records: readonly ReportRecord[]) => {
     .sort()
     .map((month) => {
       const s = computeSummary(byMonth[month]);
-      return { month, total: s.total, percentage: s.percentage, present: s.present };
+      return {
+        month,
+        total: s.total,
+        percentage: s.percentage,
+        present: s.present,
+      };
     });
 };
 
@@ -54,17 +67,31 @@ export const getReport = async (req: Request, res: Response) => {
     const batch = queryString(req.query.batch);
 
     if (type === "student") {
-      if (!studentId) return res.status(400).json({ message: "studentId is required" });
+      if (!studentId)
+        return res.status(400).json({ message: "studentId is required" });
       const student = await prisma.student.findUnique({
         where: { id: studentId },
         include: { class: true },
       });
-      if (!student) return res.status(404).json({ message: "Student not found" });
+      if (!student)
+        return res.status(404).json({ message: "Student not found" });
       const records = await prisma.attendance.findMany({
         where: { studentId },
-        include: { class: { select: { id: true, name: true, subject: true, batch: true } } },
+        include: {
+          class: {
+            select: { id: true, name: true, subject: true, batch: true },
+          },
+        },
       });
-      const byClass: Record<string, { className: string; subject: string; batch: string; records: ReportRecord[] }> = {};
+      const byClass: Record<
+        string,
+        {
+          className: string;
+          subject: string;
+          batch: string;
+          records: ReportRecord[];
+        }
+      > = {};
       records.forEach((r) => {
         const key = r.class?.id || "unknown";
         if (!byClass[key]) {
@@ -90,7 +117,8 @@ export const getReport = async (req: Request, res: Response) => {
     }
 
     if (type === "class") {
-      if (!classId) return res.status(400).json({ message: "classId is required" });
+      if (!classId)
+        return res.status(400).json({ message: "classId is required" });
       const cls = await prisma.class.findUnique({
         where: { id: classId },
         include: { students: true },
@@ -121,7 +149,9 @@ export const getReport = async (req: Request, res: Response) => {
         class: cls,
         summary: computeSummary(records),
         trend: buildTrend(records),
-        students: studentSummaries.sort((a, b) => a.summary.percentage - b.summary.percentage),
+        students: studentSummaries.sort(
+          (a, b) => a.summary.percentage - b.summary.percentage
+        ),
       });
     }
 
@@ -132,14 +162,17 @@ export const getReport = async (req: Request, res: Response) => {
       const records = await prisma.attendance.findMany({
         where: { studentId: { in: ids } },
         include: {
-          student: { select: { id: true, name: true, rollNumber: true, batch: true } },
+          student: {
+            select: { id: true, name: true, rollNumber: true, batch: true },
+          },
         },
       });
       const perStudent: Record<string, GroupedRecords> = {};
       records.forEach((r) => {
         const sid = r.student?.id;
         if (!sid) return;
-        if (!perStudent[sid]) perStudent[sid] = { student: r.student, records: [] };
+        if (!perStudent[sid])
+          perStudent[sid] = { student: r.student, records: [] };
         perStudent[sid].records.push(r);
       });
       const studentSummaries = Object.values(perStudent).map((p) => ({
@@ -151,7 +184,9 @@ export const getReport = async (req: Request, res: Response) => {
         totalStudents: students.length,
         summary: computeSummary(records),
         trend: buildTrend(records),
-        students: studentSummaries.sort((a, b) => a.summary.percentage - b.summary.percentage),
+        students: studentSummaries.sort(
+          (a, b) => a.summary.percentage - b.summary.percentage
+        ),
       });
     }
 
@@ -171,13 +206,17 @@ export const getLowAttendanceStudents = async (req: Request, res: Response) => {
     });
     const result = [];
     for (const s of students) {
-      const records = await prisma.attendance.findMany({ where: { studentId: s.id } });
+      const records = await prisma.attendance.findMany({
+        where: { studentId: s.id },
+      });
       const summary = computeSummary(records);
       if (summary.risk) {
         result.push({ student: s, summary });
       }
     }
-    res.json(result.sort((a, b) => a.summary.percentage - b.summary.percentage));
+    res.json(
+      result.sort((a, b) => a.summary.percentage - b.summary.percentage)
+    );
   } catch (error) {
     res.status(500).json({ message: errorMessage(error) });
   }

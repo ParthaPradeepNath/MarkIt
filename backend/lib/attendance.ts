@@ -8,4 +8,5 @@ export const ATTENDANCE_STATUSES: readonly AttendanceStatus[] = [
 ];
 
 export const isAttendanceStatus = (value: unknown): value is AttendanceStatus =>
-  typeof value === "string" && ATTENDANCE_STATUSES.includes(value as AttendanceStatus);
+  typeof value === "string" &&
+  ATTENDANCE_STATUSES.includes(value as AttendanceStatus);

@@ -23,12 +23,15 @@ export default function StatusFilter({
   counts,
   className,
 }: StatusFilterProps) {
-  const options: StatusOption[] = [{ value: "all", label: "All" }, ...STATUS_OPTIONS];
+  const options: StatusOption[] = [
+    { value: "all", label: "All" },
+    ...STATUS_OPTIONS,
+  ];
 
   return (
     <div
       className={cn(
-        "inline-flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full bg-muted p-1",
+        "bg-muted inline-flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full p-1",
         className
       )}
       role="group"
@@ -45,19 +48,24 @@ export default function StatusFilter({
             className={cn(
               "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors duration-150",
               isActive
-                ? "bg-card text-foreground shadow-[0_1px_2px_oklch(0_0_0/0.08),0_0_0_1px_oklch(0_0_0/0.03)] dark:bg-accent dark:shadow-none"
+                ? "bg-card text-foreground dark:bg-accent shadow-[0_1px_2px_oklch(0_0_0/0.08),0_0_0_1px_oklch(0_0_0/0.03)] dark:shadow-none"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
             {option.dot && (
-              <span className={cn("size-1.5 rounded-full", option.dot)} aria-hidden="true" />
+              <span
+                className={cn("size-1.5 rounded-full", option.dot)}
+                aria-hidden="true"
+              />
             )}
             {option.label}
             {counts && counts[option.value] !== undefined && (
               <span
                 className={cn(
                   "tnum rounded-full px-1 text-[10px] leading-4",
-                  isActive ? "bg-muted text-muted-foreground" : "text-muted-foreground/70"
+                  isActive
+                    ? "bg-muted text-muted-foreground"
+                    : "text-muted-foreground/70"
                 )}
               >
                 {counts[option.value]}

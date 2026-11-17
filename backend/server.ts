@@ -1,12 +1,17 @@
-import "./config/env.js";
-import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
+
 import { connectDB, disconnectDB, getDatabaseInfo } from "./config/db.js";
+import "./config/env.js";
+import attendanceRoutes from "./routes/attendance.js";
 import authRoutes from "./routes/auth.js";
 import classRoutes from "./routes/classes.js";
-import studentRoutes from "./routes/students.js";
-import attendanceRoutes from "./routes/attendance.js";
 import reportRoutes from "./routes/reports.js";
+import studentRoutes from "./routes/students.js";
 
 const app = express();
 
@@ -36,7 +41,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
-  const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  const server = app.listen(PORT, () =>
+    console.log(`Server running on port ${PORT}`)
+  );
 
   const shutdown = async (signal: string) => {
     console.log(`${signal} received, shutting down...`);

@@ -1,4 +1,9 @@
-import type { Class, PrismaClient, Role, Student } from "../generated/prisma/client";
+import type {
+  Class,
+  PrismaClient,
+  Role,
+  Student,
+} from "../generated/prisma/client";
 
 /** The user shape attached to every request by the `protect` middleware. */
 export type AuthUser = {

@@ -13,6 +13,7 @@ import {
   Palette,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 // Keyword → icon + tint. Order matters: first match wins, so broader
@@ -21,7 +22,15 @@ type SubjectMeta = { icon: LucideIcon; text: string; tile: string };
 
 const SUBJECTS: Array<SubjectMeta & { match: string[] }> = [
   {
-    match: ["math", "algebra", "geometry", "calculus", "trig", "statistic", "arithmetic"],
+    match: [
+      "math",
+      "algebra",
+      "geometry",
+      "calculus",
+      "trig",
+      "statistic",
+      "arithmetic",
+    ],
     icon: Calculator,
     text: "text-blue-600 dark:text-blue-400",
     tile: "bg-blue-500/10 ring-blue-500/15",
@@ -105,11 +114,18 @@ const FALLBACK: SubjectMeta = {
   tile: "bg-primary/[0.08] ring-primary/10",
 };
 
-function getSubjectMeta(subject?: string | null, name?: string | null): SubjectMeta {
-  const values = [subject, name].filter(Boolean).map((value) => String(value).toLowerCase());
+function getSubjectMeta(
+  subject?: string | null,
+  name?: string | null
+): SubjectMeta {
+  const values = [subject, name]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
 
   for (const value of values) {
-    const entry = SUBJECTS.find((item) => item.match.some((keyword) => value.includes(keyword)));
+    const entry = SUBJECTS.find((item) =>
+      item.match.some((keyword) => value.includes(keyword))
+    );
     if (entry) return entry;
   }
 

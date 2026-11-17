@@ -1,7 +1,7 @@
+import { connectDB, disconnectDB, prisma } from "./config/db.js";
 import "./config/env.js";
 import type { AttendanceStatus } from "./generated/prisma/client";
 import { Prisma } from "./generated/prisma/client";
-import { connectDB, disconnectDB, prisma } from "./config/db.js";
 import { hashPassword } from "./lib/user.js";
 
 const run = async () => {
@@ -24,13 +24,48 @@ const run = async () => {
   });
 
   const studentSeed = [
-    { name: "Arjun Sharma", rollNumber: "B01", batch: "Batch A", guardianPhone: "+91 98111 00001" },
-    { name: "Priya Patel", rollNumber: "B02", batch: "Batch A", guardianPhone: "+91 98111 00002" },
-    { name: "Rahul Verma", rollNumber: "B03", batch: "Batch A", guardianPhone: "+91 98111 00003" },
-    { name: "Sneha Iyer", rollNumber: "B04", batch: "Batch A", guardianPhone: "+91 98111 00004" },
-    { name: "Kabir Singh", rollNumber: "B05", batch: "Batch A", guardianPhone: "+91 98111 00005" },
-    { name: "Meera Nair", rollNumber: "C01", batch: "Batch B", guardianPhone: "+91 98111 00006" },
-    { name: "Vikram Rao", rollNumber: "C02", batch: "Batch B", guardianPhone: "+91 98111 00007" },
+    {
+      name: "Arjun Sharma",
+      rollNumber: "B01",
+      batch: "Batch A",
+      guardianPhone: "+91 98111 00001",
+    },
+    {
+      name: "Priya Patel",
+      rollNumber: "B02",
+      batch: "Batch A",
+      guardianPhone: "+91 98111 00002",
+    },
+    {
+      name: "Rahul Verma",
+      rollNumber: "B03",
+      batch: "Batch A",
+      guardianPhone: "+91 98111 00003",
+    },
+    {
+      name: "Sneha Iyer",
+      rollNumber: "B04",
+      batch: "Batch A",
+      guardianPhone: "+91 98111 00004",
+    },
+    {
+      name: "Kabir Singh",
+      rollNumber: "B05",
+      batch: "Batch A",
+      guardianPhone: "+91 98111 00005",
+    },
+    {
+      name: "Meera Nair",
+      rollNumber: "C01",
+      batch: "Batch B",
+      guardianPhone: "+91 98111 00006",
+    },
+    {
+      name: "Vikram Rao",
+      rollNumber: "C02",
+      batch: "Batch B",
+      guardianPhone: "+91 98111 00007",
+    },
   ];
 
   const createdStudents = [];
@@ -88,7 +123,16 @@ const run = async () => {
     data: { classId: classB.id },
   });
 
-  const statuses: AttendanceStatus[] = ["present", "present", "present", "absent", "late", "leave", "present", "absent"];
+  const statuses: AttendanceStatus[] = [
+    "present",
+    "present",
+    "present",
+    "absent",
+    "late",
+    "leave",
+    "present",
+    "absent",
+  ];
   const days = 30;
   const dates = Array.from({ length: days }, (_, i) => {
     const d = new Date();
@@ -107,7 +151,8 @@ const run = async () => {
     const isRiskStudent = s.name === "Kabir Singh" || s.name === "Vikram Rao";
     for (const date of dates) {
       if (date.getUTCDay() === 0) continue;
-      let status: AttendanceStatus = statuses[Math.floor(Math.random() * statuses.length)]!;
+      let status: AttendanceStatus =
+        statuses[Math.floor(Math.random() * statuses.length)]!;
       if (isRiskStudent && Math.random() < 0.55) status = "absent";
       attendanceData.push({
         classId: cls.id,

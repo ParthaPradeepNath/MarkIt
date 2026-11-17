@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 type PageHeaderProps = {
@@ -25,20 +26,22 @@ export default function PageHeader({
     >
       <div className="min-w-0 space-y-1">
         {eyebrow && (
-          <p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+          <p className="text-muted-foreground text-[11px] font-medium tracking-[0.08em] uppercase">
             {eyebrow}
           </p>
         )}
-        <h1 className="text-[22px] leading-[1.15] font-semibold tracking-[-0.025em] text-foreground sm:text-[26px]">
+        <h1 className="text-foreground text-[22px] leading-[1.15] font-semibold tracking-[-0.025em] sm:text-[26px]">
           {title}
         </h1>
         {description && (
-          <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground max-w-2xl text-[13px] leading-relaxed">
             {description}
           </p>
         )}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex flex-wrap items-center gap-2">{actions}</div>
+      )}
     </div>
   );
 }

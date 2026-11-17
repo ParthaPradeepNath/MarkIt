@@ -1,6 +1,8 @@
 import { useTheme } from "next-themes";
+
 import { Moon, Sun } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -16,15 +18,24 @@ export default function ThemeToggle({ className }: { className?: string }) {
   const label = isDark ? "Switch to light theme" : "Switch to dark theme";
   const Icon = isDark ? Moon : Sun;
 
-  const enter = reduce ? { opacity: 0 } : { opacity: 0, scale: 0.25, filter: "blur(4px)" };
-  const shown = reduce ? { opacity: 1 } : { opacity: 1, scale: 1, filter: "blur(0px)" };
-  const exit = reduce ? { opacity: 0 } : { opacity: 0, scale: 0.25, filter: "blur(4px)" };
+  const enter = reduce
+    ? { opacity: 0 }
+    : { opacity: 0, scale: 0.25, filter: "blur(4px)" };
+  const shown = reduce
+    ? { opacity: 1 }
+    : { opacity: 1, scale: 1, filter: "blur(0px)" };
+  const exit = reduce
+    ? { opacity: 0 }
+    : { opacity: 0, scale: 0.25, filter: "blur(4px)" };
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className={cn("rounded-full text-muted-foreground/70 hover:text-foreground", className)}
+      className={cn(
+        "text-muted-foreground/70 hover:text-foreground rounded-full",
+        className
+      )}
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={label}
       title={label}

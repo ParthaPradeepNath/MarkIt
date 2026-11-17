@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
+
+import { ChevronRight, LogOut, MoreHorizontal, UserRound } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { LogOut, MoreHorizontal, ChevronRight, UserRound } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import { Brand } from "@/components/Logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { initials } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { NavGroup, NavItemData, User } from "@/types";
 
 type NavItemProps = {
@@ -24,7 +26,13 @@ type NavItemProps = {
   reduce: boolean | null;
 };
 
-function NavItem({ item, collapsed, onNavigate, layoutId, reduce }: NavItemProps) {
+function NavItem({
+  item,
+  collapsed,
+  onNavigate,
+  layoutId,
+  reduce,
+}: NavItemProps) {
   const { to, label, icon: Icon, end } = item;
 
   return (
@@ -35,7 +43,7 @@ function NavItem({ item, collapsed, onNavigate, layoutId, reduce }: NavItemProps
       title={collapsed ? label : undefined}
       className={({ isActive }) =>
         cn(
-          "group relative flex h-9 items-center gap-2.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-sidebar-ring/40",
+          "group focus-visible:ring-sidebar-ring/40 relative flex h-9 items-center gap-2.5 rounded-[10px] px-2.5 text-[13px] font-medium transition-colors duration-150 outline-none focus-visible:ring-2",
           isActive
             ? "text-sidebar-primary"
             : "text-sidebar-foreground/65 hover:text-sidebar-foreground",
@@ -49,7 +57,7 @@ function NavItem({ item, collapsed, onNavigate, layoutId, reduce }: NavItemProps
             <motion.span
               aria-hidden="true"
               layoutId={`nav-active-${layoutId}`}
-              className="absolute inset-0 rounded-[10px] bg-sidebar-primary/[0.09] ring-1 ring-sidebar-primary/10 ring-inset"
+              className="bg-sidebar-primary/[0.09] ring-sidebar-primary/10 absolute inset-0 rounded-[10px] ring-1 ring-inset"
               transition={
                 reduce
                   ? { duration: 0 }
@@ -60,7 +68,9 @@ function NavItem({ item, collapsed, onNavigate, layoutId, reduce }: NavItemProps
           <Icon
             className={cn(
               "relative z-10 size-[17px] shrink-0 transition-colors duration-150",
-              isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-foreground"
+              isActive
+                ? "text-sidebar-primary"
+                : "text-muted-foreground group-hover:text-sidebar-foreground"
             )}
             strokeWidth={1.8}
             aria-hidden="true"
@@ -101,25 +111,30 @@ export default function SidebarContent({
   const userInitials = initials(user?.name);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-sidebar">
+    <div className="bg-sidebar flex h-full min-h-0 flex-col">
       <div
         className={cn(
           "flex h-16 shrink-0 items-center",
           collapsed ? "justify-center px-2" : "justify-between px-4"
         )}
       >
-        <Brand collapsed={collapsed} subtitle={collapsed ? null : "Attendance"} />
+        <Brand
+          collapsed={collapsed}
+          subtitle={collapsed ? null : "Attendance"}
+        />
       </div>
 
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pt-1 pb-4">
         {groups.map((group, index) => (
           <div key={group.label} className={cn(index > 0 && "mt-4")}>
             {!collapsed && (
-              <p className="mb-1.5 px-2.5 text-[10px] font-semibold tracking-[0.09em] text-muted-foreground/70 uppercase">
+              <p className="text-muted-foreground/70 mb-1.5 px-2.5 text-[10px] font-semibold tracking-[0.09em] uppercase">
                 {group.label}
               </p>
             )}
-            {collapsed && index > 0 && <div className="mx-auto mb-3 h-px w-6 bg-sidebar-border" />}
+            {collapsed && index > 0 && (
+              <div className="bg-sidebar-border mx-auto mb-3 h-px w-6" />
+            )}
             <div className="space-y-0.5">
               {group.items.map((item) => (
                 <NavItem
@@ -136,7 +151,7 @@ export default function SidebarContent({
         ))}
       </nav>
 
-      <div className="shrink-0 border-t border-sidebar-border p-2">
+      <div className="border-sidebar-border shrink-0 border-t p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             {collapsed ? (
@@ -147,7 +162,7 @@ export default function SidebarContent({
                 aria-label="Account menu"
               >
                 <Avatar size="sm">
-                  <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -155,10 +170,10 @@ export default function SidebarContent({
             ) : (
               <button
                 type="button"
-                className="group flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-colors duration-150 hover:bg-sidebar-accent"
+                className="group hover:bg-sidebar-accent flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-colors duration-150"
               >
                 <Avatar>
-                  <AvatarFallback className="bg-primary/10 text-[11px] font-semibold text-primary">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[11px] font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -166,11 +181,11 @@ export default function SidebarContent({
                   <span className="block truncate text-[13px] leading-tight font-medium">
                     {user?.name}
                   </span>
-                  <span className="mt-0.5 block truncate text-[11px] leading-tight text-muted-foreground capitalize">
+                  <span className="text-muted-foreground mt-0.5 block truncate text-[11px] leading-tight capitalize">
                     {user?.role}
                   </span>
                 </span>
-                <MoreHorizontal className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                <MoreHorizontal className="text-muted-foreground size-4 opacity-0 transition-opacity group-hover:opacity-100" />
               </button>
             )}
           </DropdownMenuTrigger>
@@ -180,8 +195,12 @@ export default function SidebarContent({
             className="min-w-52"
           >
             <DropdownMenuLabel className="px-2 py-1.5">
-              <p className="truncate text-[13px] font-medium text-foreground">{user?.name}</p>
-              <p className="truncate text-[11px] font-normal text-muted-foreground">{user?.email}</p>
+              <p className="text-foreground truncate text-[13px] font-medium">
+                {user?.name}
+              </p>
+              <p className="text-muted-foreground truncate text-[11px] font-normal">
+                {user?.email}
+              </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -192,7 +211,7 @@ export default function SidebarContent({
             >
               <UserRound className="size-4" aria-hidden="true" />
               Profile
-              <ChevronRight className="ml-auto size-3.5 text-muted-foreground" />
+              <ChevronRight className="text-muted-foreground ml-auto size-3.5" />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={onLogout}>

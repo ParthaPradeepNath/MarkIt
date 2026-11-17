@@ -1,13 +1,16 @@
-import jwt from "jsonwebtoken";
 import type { Request, Response } from "express";
-import type { Class, Student, User } from "../generated/prisma/client";
+import jwt from "jsonwebtoken";
+
 import { prisma } from "../config/db.js";
-import { hashPassword, matchPassword } from "../lib/user.js";
+import type { Class, Student, User } from "../generated/prisma/client";
 import { errorMessage } from "../lib/error.js";
+import { hashPassword, matchPassword } from "../lib/user.js";
 
 const userInclude = { student: { include: { class: true } } } as const;
 
-type PopulatedUser = User & { student: (Student & { class: Class | null }) | null };
+type PopulatedUser = User & {
+  student: (Student & { class: Class | null }) | null;
+};
 
 const toUserResponse = (user: PopulatedUser) => ({
   id: user.id,
@@ -27,7 +30,9 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
     const user = await prisma.user.findUnique({
       where: { email: email.trim().toLowerCase() },
@@ -81,7 +86,9 @@ export const changePassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
     if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 6 characters" });
     }
     await prisma.user.update({
       where: { id: user.id },

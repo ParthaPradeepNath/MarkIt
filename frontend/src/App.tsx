@@ -1,11 +1,12 @@
-import { Suspense, lazy, type ReactNode } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { lazy, type ReactNode, Suspense } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+
 import { ConfirmProvider } from "@/components/ConfirmDialog";
 import AppLayout from "@/components/layout/AppLayout";
-import Login from "@/pages/Login";
-import { Toaster } from "@/components/ui/sonner";
 import { Logo } from "@/components/Logo";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import Login from "@/pages/Login";
 import type { Role } from "@/types";
 
 const TeacherDashboard = lazy(() => import("@/pages/TeacherDashboard"));
@@ -20,10 +21,14 @@ const Profile = lazy(() => import("@/pages/Profile"));
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center py-24" aria-busy="true" aria-live="polite">
+    <div
+      className="flex items-center justify-center py-24"
+      aria-busy="true"
+      aria-live="polite"
+    >
       <div className="flex flex-col items-center gap-3">
         <Logo className="size-8 animate-pulse" />
-        <p className="text-xs text-muted-foreground">Loading…</p>
+        <p className="text-muted-foreground text-xs">Loading…</p>
       </div>
     </div>
   );
@@ -31,16 +36,25 @@ function PageLoader() {
 
 function FullPageLoader() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-background" aria-busy="true">
+    <div
+      className="bg-background flex min-h-dvh items-center justify-center"
+      aria-busy="true"
+    >
       <div className="flex flex-col items-center gap-3">
         <Logo className="size-9 animate-pulse" />
-        <p className="text-xs text-muted-foreground">Loading MarkIt…</p>
+        <p className="text-muted-foreground text-xs">Loading MarkIt…</p>
       </div>
     </div>
   );
 }
 
-function ProtectedRoute({ children, roles }: { children: ReactNode; roles?: Role[] }) {
+function ProtectedRoute({
+  children,
+  roles,
+}: {
+  children: ReactNode;
+  roles?: Role[];
+}) {
   const { user, loading } = useAuth();
 
   if (loading) return <FullPageLoader />;
@@ -57,7 +71,9 @@ function withSuspense(element: ReactNode) {
 
 function DashboardRoute() {
   const { user } = useAuth();
-  return withSuspense(user?.role === "teacher" ? <TeacherDashboard /> : <StudentDashboard />);
+  return withSuspense(
+    user?.role === "teacher" ? <TeacherDashboard /> : <StudentDashboard />
+  );
 }
 
 function App() {
@@ -80,13 +96,17 @@ function App() {
               <Route
                 path="/classes"
                 element={
-                  <ProtectedRoute roles={["teacher"]}>{withSuspense(<Classes />)}</ProtectedRoute>
+                  <ProtectedRoute roles={["teacher"]}>
+                    {withSuspense(<Classes />)}
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/students"
                 element={
-                  <ProtectedRoute roles={["teacher"]}>{withSuspense(<Students />)}</ProtectedRoute>
+                  <ProtectedRoute roles={["teacher"]}>
+                    {withSuspense(<Students />)}
+                  </ProtectedRoute>
                 }
               />
               <Route
@@ -100,10 +120,15 @@ function App() {
               <Route
                 path="/attendance"
                 element={
-                  <ProtectedRoute roles={["teacher"]}>{withSuspense(<Attendance />)}</ProtectedRoute>
+                  <ProtectedRoute roles={["teacher"]}>
+                    {withSuspense(<Attendance />)}
+                  </ProtectedRoute>
                 }
               />
-              <Route path="/history" element={withSuspense(<AttendanceHistory />)} />
+              <Route
+                path="/history"
+                element={withSuspense(<AttendanceHistory />)}
+              />
               <Route path="/reports" element={withSuspense(<Reports />)} />
               <Route path="/profile" element={withSuspense(<Profile />)} />
             </Route>

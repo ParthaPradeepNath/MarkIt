@@ -58,11 +58,14 @@
 
   /* Geometry & depth */
   --radius: 0.7rem;
-  --elevation-card: 0 0 0 1px oklch(0 0 0 / 0.025), 0 1px 2px -1px oklch(0 0 0 / 0.06),
+  --elevation-card:
+    0 0 0 1px oklch(0 0 0 / 0.025), 0 1px 2px -1px oklch(0 0 0 / 0.06),
     0 2px 8px -2px oklch(0 0 0 / 0.04);
-  --elevation-elevated: 0 0 0 1px oklch(0 0 0 / 0.035), 0 2px 4px -2px oklch(0 0 0 / 0.07),
+  --elevation-elevated:
+    0 0 0 1px oklch(0 0 0 / 0.035), 0 2px 4px -2px oklch(0 0 0 / 0.07),
     0 12px 32px -8px oklch(0 0 0 / 0.12);
-  --elevation-float: 0 0 0 1px oklch(0 0 0 / 0.04), 0 8px 16px -6px oklch(0 0 0 / 0.08),
+  --elevation-float:
+    0 0 0 1px oklch(0 0 0 / 0.04), 0 8px 16px -6px oklch(0 0 0 / 0.08),
     0 24px 56px -12px oklch(0 0 0 / 0.16);
 
   /* Motion */
@@ -117,8 +120,10 @@
   --sidebar-ring: oklch(0.64 0.17 253);
 
   --elevation-card: 0 0 0 1px oklch(1 0 0 / 0.055);
-  --elevation-elevated: 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px -16px oklch(0 0 0 / 0.7);
-  --elevation-float: 0 0 0 1px oklch(1 0 0 / 0.09), 0 24px 60px -20px oklch(0 0 0 / 0.8);
+  --elevation-elevated:
+    0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px -16px oklch(0 0 0 / 0.7);
+  --elevation-float:
+    0 0 0 1px oklch(1 0 0 / 0.09), 0 24px 60px -20px oklch(0 0 0 / 0.8);
 }
 
 @theme inline {
@@ -168,7 +173,8 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 14px);
 
-  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+  --font-sans:
+    "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
   --font-heading: var(--font-sans);
 
@@ -229,7 +235,8 @@
   /* Quiet, Apple-like scrollbars */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent)
+      transparent;
   }
 
   ::-webkit-scrollbar {
@@ -345,7 +352,11 @@
 /* One soft, token-based wash that separates the brand zone from the form.
    Bleeds off the viewport edges; never a plate behind the content. */
 @utility brand-wash {
-  background-image: radial-gradient(72% 78% at 12% 30%, var(--primary), transparent 72%);
+  background-image: radial-gradient(
+    72% 78% at 12% 30%,
+    var(--primary),
+    transparent 72%
+  );
 }
 
 /* Applied to token-painted surfaces so the whole app crossfades with the page. */

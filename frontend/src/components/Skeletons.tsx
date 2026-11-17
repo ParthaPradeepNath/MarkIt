@@ -1,7 +1,13 @@
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
-export function StatGridSkeleton({ count = 4, className }: { count?: number; className?: string }) {
+export function StatGridSkeleton({
+  count = 4,
+  className,
+}: {
+  count?: number;
+  className?: string;
+}) {
   return (
     <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}>
       {Array.from({ length: count }).map((_, index) => (
@@ -37,7 +43,13 @@ export function TableSkeleton({
   );
 }
 
-export function CardSkeleton({ className, height = "h-44" }: { className?: string; height?: string }) {
+export function CardSkeleton({
+  className,
+  height = "h-44",
+}: {
+  className?: string;
+  height?: string;
+}) {
   return <Skeleton className={cn("rounded-xl", height, className)} />;
 }
 
@@ -50,7 +62,7 @@ export function PageSkeleton({ stats = 4, rows = 6, cols = 5 }) {
       </div>
       {stats > 0 && <StatGridSkeleton count={stats} />}
       <Skeleton className="h-[320px] rounded-xl" />
-      <div className="rounded-xl border border-border/70 bg-card p-2">
+      <div className="border-border/70 bg-card rounded-xl border p-2">
         <TableSkeleton rows={rows} cols={cols} />
       </div>
     </div>

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { format } from "date-fns";
 import {
   CalendarRange,
@@ -10,16 +17,16 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 import api from "@/api/axios";
-import { useAuth } from "@/context/AuthContext";
-import PageHeader from "@/components/PageHeader";
 import AttendanceRing from "@/components/AttendanceRing";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import StatusBadge from "@/components/StatusBadge";
-import StatCard from "@/components/StatCard";
-import StatusFilter from "@/components/StatusFilter";
+import PageHeader from "@/components/PageHeader";
 import { TableSkeleton } from "@/components/Skeletons";
+import StatCard from "@/components/StatCard";
+import StatusBadge from "@/components/StatusBadge";
+import StatusFilter from "@/components/StatusFilter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,9 +47,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/context/AuthContext";
 import { formatDate, getErrorMessage, initials, plural } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type {
   AttendanceRecord,
   AttendanceStatus,
@@ -51,12 +66,13 @@ import type {
   Student,
 } from "@/types";
 
-const STATUSES: Array<{ value: AttendanceStatus; label: string; dot: string }> = [
-  { value: "present", label: "Present", dot: "bg-emerald-500" },
-  { value: "absent", label: "Absent", dot: "bg-rose-500" },
-  { value: "late", label: "Late", dot: "bg-amber-500" },
-  { value: "leave", label: "Leave", dot: "bg-sky-500" },
-];
+const STATUSES: Array<{ value: AttendanceStatus; label: string; dot: string }> =
+  [
+    { value: "present", label: "Present", dot: "bg-emerald-500" },
+    { value: "absent", label: "Absent", dot: "bg-rose-500" },
+    { value: "late", label: "Late", dot: "bg-amber-500" },
+    { value: "leave", label: "Leave", dot: "bg-sky-500" },
+  ];
 
 export default function AttendanceHistory() {
   const { user } = useAuth();
@@ -81,7 +97,9 @@ export default function AttendanceHistory() {
           setStudents(data);
           setStudentId((current) => current || data[0]?.id || "");
         })
-        .catch((err) => setError(getErrorMessage(err, "Failed to load students.")));
+        .catch((err) =>
+          setError(getErrorMessage(err, "Failed to load students."))
+        );
     } else if (ownStudentId) {
       setStudentId(ownStudentId);
     }
@@ -112,7 +130,13 @@ export default function AttendanceHistory() {
   const studentName = selectedStudent?.name || user?.name || "Student";
 
   const counts = useMemo<StatusCounts>(() => {
-    const next: StatusCounts = { all: records.length, present: 0, absent: 0, late: 0, leave: 0 };
+    const next: StatusCounts = {
+      all: records.length,
+      present: 0,
+      absent: 0,
+      late: 0,
+      leave: 0,
+    };
     records.forEach((record) => {
       if (next[record.status] !== undefined) next[record.status] += 1;
     });
@@ -122,16 +146,24 @@ export default function AttendanceHistory() {
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return records.filter((record) => {
-      if (statusFilter !== "all" && record.status !== statusFilter) return false;
+      if (statusFilter !== "all" && record.status !== statusFilter)
+        return false;
       if (!needle) return true;
-      return [record.class?.name, record.class?.batch, record.remark, formatDate(record.date)]
+      return [
+        record.class?.name,
+        record.class?.batch,
+        record.remark,
+        formatDate(record.date),
+      ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
   }, [records, statusFilter, query]);
 
   const present = counts.present + counts.late;
-  const percentage = counts.all ? Math.round((present / counts.all) * 100) : null;
+  const percentage = counts.all
+    ? Math.round((present / counts.all) * 100)
+    : null;
 
   const saveCorrection = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -189,7 +221,11 @@ export default function AttendanceHistory() {
           : "Every session your teachers have recorded for you."
       }
       actions={
-        <Button variant="secondary" onClick={exportCsv} disabled={records.length === 0}>
+        <Button
+          variant="secondary"
+          onClick={exportCsv}
+          disabled={records.length === 0}
+        >
           <Download className="size-4" aria-hidden="true" />
           Export CSV
         </Button>
@@ -220,7 +256,7 @@ export default function AttendanceHistory() {
         <Card>
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="w-full space-y-1.5 sm:max-w-sm">
-              <Label className="text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
+              <Label className="text-muted-foreground text-[11px] tracking-[0.06em] uppercase">
                 Student
               </Label>
               <Select value={studentId} onValueChange={setStudentId}>
@@ -239,14 +275,17 @@ export default function AttendanceHistory() {
             {selectedStudent && (
               <div className="flex items-center gap-2.5">
                 <Avatar>
-                  <AvatarFallback className="bg-primary/[0.08] text-[11px] font-semibold text-primary">
+                  <AvatarFallback className="bg-primary/[0.08] text-primary text-[11px] font-semibold">
                     {initials(selectedStudent.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium">{selectedStudent.name}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    Roll {selectedStudent.rollNumber} · {selectedStudent.batch || "No batch"}
+                  <p className="truncate text-[13px] font-medium">
+                    {selectedStudent.name}
+                  </p>
+                  <p className="text-muted-foreground truncate text-[11px]">
+                    Roll {selectedStudent.rollNumber} ·{" "}
+                    {selectedStudent.batch || "No batch"}
                   </p>
                 </div>
               </div>
@@ -262,9 +301,14 @@ export default function AttendanceHistory() {
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
             <Card>
               <CardContent className="flex items-center gap-5">
-                <AttendanceRing value={percentage} size={96} stroke={9} label="Overall" />
+                <AttendanceRing
+                  value={percentage}
+                  size={96}
+                  stroke={9}
+                  label="Overall"
+                />
                 <div className="min-w-0">
-                  <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
                     Attendance
                   </p>
                   <p className="mt-1 text-[15px] leading-tight font-semibold tracking-[-0.01em]">
@@ -274,7 +318,7 @@ export default function AttendanceHistory() {
                         ? "On track"
                         : "Below target"}
                   </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-[12px] leading-relaxed">
                     {percentage === null
                       ? "Sessions will appear once marked."
                       : `${present} of ${counts.all} sessions attended.`}
@@ -283,7 +327,7 @@ export default function AttendanceHistory() {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
               <StatCard
                 className="col-span-2 sm:col-span-1"
                 title="Sessions"
@@ -310,12 +354,16 @@ export default function AttendanceHistory() {
           </div>
 
           <Card>
-            <CardContent className="flex flex-col gap-3 border-b border-border/60 sm:flex-row sm:items-center">
-              <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
+            <CardContent className="border-border/60 flex flex-col gap-3 border-b sm:flex-row sm:items-center">
+              <StatusFilter
+                value={statusFilter}
+                onChange={setStatusFilter}
+                counts={counts}
+              />
 
               <div className="relative sm:ml-auto sm:w-56">
                 <Search
-                  className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                  className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
                   aria-hidden="true"
                 />
                 <Input
@@ -335,7 +383,11 @@ export default function AttendanceHistory() {
               ) : filtered.length === 0 ? (
                 <EmptyState
                   icon={CalendarRange}
-                  title={records.length === 0 ? "No history yet" : "Nothing matches these filters"}
+                  title={
+                    records.length === 0
+                      ? "No history yet"
+                      : "Nothing matches these filters"
+                  }
                   description={
                     records.length === 0
                       ? "Once attendance is marked for this student, every session will show up here."
@@ -363,8 +415,12 @@ export default function AttendanceHistory() {
                       <TableHead>Date</TableHead>
                       <TableHead>Class</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="hidden md:table-cell">Remark</TableHead>
-                      <TableHead className="hidden lg:table-cell">Marked by</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Remark
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Marked by
+                      </TableHead>
                       {isTeacher && (
                         <TableHead className="w-10 text-right">
                           <span className="sr-only">Actions</span>
@@ -375,22 +431,24 @@ export default function AttendanceHistory() {
                   <TableBody>
                     {filtered.map((record) => (
                       <TableRow key={record.id}>
-                        <TableCell className="tnum text-[12px] text-muted-foreground">
+                        <TableCell className="tnum text-muted-foreground text-[12px]">
                           {formatDate(record.date)}
                         </TableCell>
                         <TableCell>
-                          <p className="text-[13px] font-medium">{record.class?.name || "—"}</p>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-[13px] font-medium">
+                            {record.class?.name || "—"}
+                          </p>
+                          <p className="text-muted-foreground text-[11px]">
                             {record.class?.batch || "—"}
                           </p>
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={record.status} />
                         </TableCell>
-                        <TableCell className="hidden max-w-[220px] truncate text-[12px] text-muted-foreground md:table-cell">
+                        <TableCell className="text-muted-foreground hidden max-w-[220px] truncate text-[12px] md:table-cell">
                           {record.remark || "—"}
                         </TableCell>
-                        <TableCell className="hidden text-[12px] text-muted-foreground lg:table-cell">
+                        <TableCell className="text-muted-foreground hidden text-[12px] lg:table-cell">
                           {record.markedBy?.name || "—"}
                         </TableCell>
                         {isTeacher && (
@@ -415,14 +473,18 @@ export default function AttendanceHistory() {
           </Card>
 
           {!loading && filtered.length > 0 && (
-            <p className="text-center text-[11px] text-muted-foreground">
-              Showing {plural(filtered.length, "record")} · {plural(counts.all, "total record")}
+            <p className="text-muted-foreground text-center text-[11px]">
+              Showing {plural(filtered.length, "record")} ·{" "}
+              {plural(counts.all, "total record")}
             </p>
           )}
         </>
       )}
 
-      <Dialog open={Boolean(correction)} onOpenChange={(value) => !value && setCorrection(null)}>
+      <Dialog
+        open={Boolean(correction)}
+        onOpenChange={(value) => !value && setCorrection(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Correct record</DialogTitle>
@@ -443,17 +505,23 @@ export default function AttendanceHistory() {
                         key={status.value}
                         type="button"
                         onClick={() =>
-                          setCorrection((previous) => ({ ...previous!, status: status.value }))
+                          setCorrection((previous) => ({
+                            ...previous!,
+                            status: status.value,
+                          }))
                         }
                         aria-pressed={active}
                         className={cn(
-                          "flex h-9 cursor-pointer items-center gap-2 rounded-lg border px-3 text-[13px] font-medium outline-none transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:ring-ring/30",
+                          "focus-visible:ring-ring/30 flex h-9 cursor-pointer items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-[background-color,border-color,color,box-shadow] duration-150 outline-none focus-visible:ring-3",
                           active
-                            ? "border-primary/40 bg-primary/[0.06] text-foreground ring-1 ring-primary/20"
+                            ? "border-primary/40 bg-primary/[0.06] text-foreground ring-primary/20 ring-1"
                             : "border-border/70 bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                         )}
                       >
-                        <span className={cn("size-1.5 rounded-full", status.dot)} aria-hidden="true" />
+                        <span
+                          className={cn("size-1.5 rounded-full", status.dot)}
+                          aria-hidden="true"
+                        />
                         {status.label}
                       </button>
                     );
@@ -466,18 +534,30 @@ export default function AttendanceHistory() {
                   id="history-remark"
                   value={correction?.remark || ""}
                   onChange={(event) =>
-                    setCorrection((previous) => ({ ...previous!, remark: event.target.value }))
+                    setCorrection((previous) => ({
+                      ...previous!,
+                      remark: event.target.value,
+                    }))
                   }
                   placeholder="Reason for correction"
                 />
               </div>
             </div>
             <DialogFooter className="mt-5">
-              <Button type="button" variant="secondary" onClick={() => setCorrection(null)}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setCorrection(null)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+                {saving && (
+                  <Loader2
+                    className="size-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
                 Save correction
               </Button>
             </DialogFooter>

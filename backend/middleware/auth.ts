@@ -1,9 +1,14 @@
-import jwt from "jsonwebtoken";
 import type { NextFunction, Request, Response } from "express";
-import type { Role } from "../generated/prisma/client";
-import { prisma } from "../config/db.js";
+import jwt from "jsonwebtoken";
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
+import { prisma } from "../config/db.js";
+import type { Role } from "../generated/prisma/client";
+
+export const protect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     let token: string | undefined;
     const authHeader = req.headers.authorization;
@@ -13,7 +18,9 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     if (!token) {
       return res.status(401).json({ message: "Not authorized, no token" });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+    };
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
       select: {
@@ -26,7 +33,9 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       },
     });
     if (!user) {
-      return res.status(401).json({ message: "Not authorized, user not found" });
+      return res
+        .status(401)
+        .json({ message: "Not authorized, user not found" });
     }
     req.user = user;
     next();
@@ -38,7 +47,9 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 export const authorize = (...roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: `Role ${req.user.role} is not allowed` });
+      return res
+        .status(403)
+        .json({ message: `Role ${req.user.role} is not allowed` });
     }
     next();
   };

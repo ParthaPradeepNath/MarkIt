@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+
 import { format } from "date-fns";
 import {
   ArrowUpRight,
@@ -11,23 +12,37 @@ import {
   TriangleAlert,
   Users,
 } from "lucide-react";
+
 import api from "@/api/axios";
-import { useAuth } from "@/context/AuthContext";
-import PageHeader from "@/components/PageHeader";
-import StatCard from "@/components/StatCard";
-import StatusBadge from "@/components/StatusBadge";
 import AttendanceRing from "@/components/AttendanceRing";
-import SubjectIcon from "@/components/SubjectIcon";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
+import PageHeader from "@/components/PageHeader";
 import { DashboardSkeleton } from "@/components/Skeletons";
+import StatCard from "@/components/StatCard";
+import StatusBadge from "@/components/StatusBadge";
+import SubjectIcon from "@/components/SubjectIcon";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { firstName, getErrorMessage, greeting, initials, plural } from "@/lib/format";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/context/AuthContext";
+import {
+  firstName,
+  getErrorMessage,
+  greeting,
+  initials,
+  plural,
+} from "@/lib/format";
 import type {
   AttendanceRecord,
   AttendanceStatus,
@@ -62,7 +77,9 @@ export default function TeacherDashboard() {
       const days = await Promise.all(
         classResponse.data.map((cls) =>
           api
-            .get<AttendanceRecord[]>(`/attendance/class/${cls.id}?date=${today}`)
+            .get<AttendanceRecord[]>(
+              `/attendance/class/${cls.id}?date=${today}`
+            )
             .catch(() => ({ data: [] as AttendanceRecord[] }))
         )
       );
@@ -153,7 +170,7 @@ export default function TeacherDashboard() {
         <Card className="relative overflow-hidden lg:col-span-2">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-primary/[0.06] blur-2xl"
+            className="bg-primary/[0.06] pointer-events-none absolute -top-24 -right-16 size-64 rounded-full blur-2xl"
           />
           <CardContent className="flex flex-1 flex-col justify-center gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
@@ -164,7 +181,7 @@ export default function TeacherDashboard() {
                 label="Today"
               />
               <div className="min-w-0">
-                <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
                   Today&apos;s attendance
                 </p>
                 <p className="mt-1.5 text-[17px] leading-tight font-semibold tracking-[-0.02em]">
@@ -172,7 +189,7 @@ export default function TeacherDashboard() {
                     ? `${todaySummary.present} of ${todaySummary.total} present`
                     : "Nothing marked yet"}
                 </p>
-                <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-[13px] leading-relaxed">
                   {todaySummary.total
                     ? `Across ${plural(classes.length, "class", "classes")}.`
                     : "Start with your first class of the day."}
@@ -224,22 +241,37 @@ export default function TeacherDashboard() {
       {lowAttendance.length > 0 && (
         <Card className="border-warning/25 bg-warning/[0.045] shadow-none">
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-warning/15 text-warning ring-1 ring-warning/20 ring-inset">
-              <TriangleAlert className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            <span className="bg-warning/15 text-warning ring-warning/20 flex size-9 shrink-0 items-center justify-center rounded-[10px] ring-1 ring-inset">
+              <TriangleAlert
+                className="size-[18px]"
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-medium text-foreground">
-                {plural(lowAttendance.length, "student")} below the 75% threshold
+              <p className="text-foreground text-[13px] font-medium">
+                {plural(lowAttendance.length, "student")} below the 75%
+                threshold
               </p>
-              <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+              <p className="text-muted-foreground mt-0.5 truncate text-[12px]">
                 {lowAttendance
                   .slice(0, 3)
-                  .map((item) => `${item.student.name} (${item.summary.percentage}%)`)
+                  .map(
+                    (item) =>
+                      `${item.student.name} (${item.summary.percentage}%)`
+                  )
                   .join(" · ")}
-                {lowAttendance.length > 3 ? ` · +${lowAttendance.length - 3} more` : ""}
+                {lowAttendance.length > 3
+                  ? ` · +${lowAttendance.length - 3} more`
+                  : ""}
               </p>
             </div>
-            <Button asChild variant="secondary" size="sm" className="self-start sm:self-auto">
+            <Button
+              asChild
+              variant="secondary"
+              size="sm"
+              className="self-start sm:self-auto"
+            >
               <Link to="/reports">Review reports</Link>
             </Button>
           </CardContent>
@@ -279,7 +311,7 @@ export default function TeacherDashboard() {
                   <Link
                     key={cls.id}
                     to="/classes"
-                    className="group flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors duration-150 hover:bg-muted/60"
+                    className="group hover:bg-muted/60 flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors duration-150"
                   >
                     <SubjectIcon
                       subject={cls.subject}
@@ -289,13 +321,18 @@ export default function TeacherDashboard() {
                       strokeWidth={1.8}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium">{cls.name}</span>
-                      <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                      <span className="block truncate text-[13px] font-medium">
+                        {cls.name}
+                      </span>
+                      <span className="text-muted-foreground mt-0.5 block truncate text-[11px]">
                         {cls.subject} · {cls.batch}
                         {cls.schedule ? ` · ${cls.schedule}` : ""}
                       </span>
                     </span>
-                    <Badge variant="secondary" className="tnum gap-1 text-muted-foreground">
+                    <Badge
+                      variant="secondary"
+                      className="tnum text-muted-foreground gap-1"
+                    >
                       <Users className="size-3" aria-hidden="true" />
                       {cls.students?.length || 0}
                     </Badge>
@@ -335,26 +372,28 @@ export default function TeacherDashboard() {
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-[13px] font-medium">{student.name}</p>
+                        <p className="truncate text-[13px] font-medium">
+                          {student.name}
+                        </p>
                         <span
                           className={
                             summary.percentage < 50
-                              ? "tnum text-[12px] font-medium text-destructive"
-                              : "tnum text-[12px] font-medium text-muted-foreground"
+                              ? "tnum text-destructive text-[12px] font-medium"
+                              : "tnum text-muted-foreground text-[12px] font-medium"
                           }
                         >
                           {summary.percentage}%
                         </span>
                       </div>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      <p className="text-muted-foreground mt-0.5 text-[11px]">
                         Roll {student.rollNumber}
                       </p>
                       <Progress
                         value={summary.percentage}
                         className={
                           summary.percentage < 50
-                            ? "mt-1.5 [&>div]:bg-destructive"
-                            : "mt-1.5 [&>div]:bg-warning"
+                            ? "[&>div]:bg-destructive mt-1.5"
+                            : "[&>div]:bg-warning mt-1.5"
                         }
                       />
                     </div>
@@ -370,7 +409,7 @@ export default function TeacherDashboard() {
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <CardTitle>Today&apos;s records</CardTitle>
-            <p className="mt-1 text-[12px] text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-[12px]">
               {todaySummary.total
                 ? `${plural(todaySummary.total, "record")} marked today`
                 : "Attendance marked today will appear here."}
@@ -415,10 +454,12 @@ export default function TeacherDashboard() {
                             {initials(record.student?.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{record.student?.name || "—"}</span>
+                        <span className="font-medium">
+                          {record.student?.name || "—"}
+                        </span>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    <TableCell className="text-muted-foreground hidden sm:table-cell">
                       {record.class?.name || "—"}
                     </TableCell>
                     <TableCell>
@@ -435,10 +476,18 @@ export default function TeacherDashboard() {
   );
 }
 
-function Breakdown({ status, value }: { status: AttendanceStatus; value: number }) {
+function Breakdown({
+  status,
+  value,
+}: {
+  status: AttendanceStatus;
+  value: number;
+}) {
   return (
     <div>
-      <p className="tnum text-[18px] leading-none font-semibold tracking-[-0.02em]">{value}</p>
+      <p className="tnum text-[18px] leading-none font-semibold tracking-[-0.02em]">
+        {value}
+      </p>
       <StatusBadge status={status} className="mt-1.5" />
     </div>
   );

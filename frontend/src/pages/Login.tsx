@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+
 import {
   Eye,
   EyeOff,
@@ -10,13 +10,15 @@ import {
   Mail,
   Users,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+
+import LoginMockup from "@/components/LoginMockup";
+import { Brand, Logo } from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Brand, Logo } from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
-import LoginMockup from "@/components/LoginMockup";
+import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/lib/format";
 
 const demos = [
@@ -49,37 +51,41 @@ export default function Login() {
       navigate("/dashboard", { replace: true });
     } catch (err) {
       toast.error("Couldn't sign you in", {
-        description: getErrorMessage(err, "Check your email and password, then try again."),
+        description: getErrorMessage(
+          err,
+          "Check your email and password, then try again."
+        ),
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const fill = (email: string, password: string) => setForm({ email, password });
+  const fill = (email: string, password: string) =>
+    setForm({ email, password });
 
   return (
-    <div className="theme-fade relative min-h-dvh overflow-hidden bg-background dark:bg-[#121212]">
+    <div className="theme-fade bg-background relative min-h-dvh overflow-hidden dark:bg-[#121212]">
       <div className="absolute top-5 right-5 z-20 sm:top-7 sm:right-8">
         <ThemeToggle />
       </div>
 
       <div className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-16 px-6 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20 lg:px-8">
         {/* Brand panel — one soft wash, one headline, one signature visual. */}
-        <section className="relative hidden self-stretch flex-col justify-center lg:flex">
+        <section className="relative hidden flex-col justify-center self-stretch lg:flex">
           <div
             aria-hidden="true"
-            className="brand-wash pointer-events-none absolute inset-y-0 -left-[50vw] -right-16 opacity-[0.09]"
+            className="brand-wash pointer-events-none absolute inset-y-0 -right-16 -left-[50vw] opacity-[0.09]"
           />
           <div className="relative">
             <Brand subtitle="Attendance management" />
 
-            <h1 className="page-enter mt-14 max-w-[19ch] text-[44px] leading-[1.08] font-semibold tracking-[-0.04em] text-foreground xl:text-[50px]">
+            <h1 className="page-enter text-foreground mt-14 max-w-[19ch] text-[44px] leading-[1.08] font-semibold tracking-[-0.04em] xl:text-[50px]">
               Attendance, without the busywork.
             </h1>
-            <p className="mt-5 max-w-[42ch] text-[15px] leading-relaxed text-muted-foreground">
-              Take a full class in seconds, spot at-risk students early, and see the whole term at a
-              glance.
+            <p className="text-muted-foreground mt-5 max-w-[42ch] text-[15px] leading-relaxed">
+              Take a full class in seconds, spot at-risk students early, and see
+              the whole term at a glance.
             </p>
 
             <LoginMockup className="mt-12" />
@@ -90,15 +96,19 @@ export default function Login() {
         <section className="page-enter mx-auto w-full max-w-[400px]">
           <div className="mb-8 flex flex-col items-center text-center lg:hidden">
             <Logo className="size-10" />
-            <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.03em]">MarkIt</h1>
-            <p className="mt-1 text-[13px] text-muted-foreground">Attendance management</p>
+            <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.03em]">
+              MarkIt
+            </h1>
+            <p className="text-muted-foreground mt-1 text-[13px]">
+              Attendance management
+            </p>
           </div>
 
           <header className="mb-8">
-            <h2 className="text-[26px] leading-tight font-semibold tracking-[-0.03em] text-foreground">
+            <h2 className="text-foreground text-[26px] leading-tight font-semibold tracking-[-0.03em]">
               Welcome back
             </h2>
-            <p className="mt-2 text-[14px] text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-[14px]">
               Sign in to continue to your dashboard.
             </p>
           </header>
@@ -110,7 +120,7 @@ export default function Login() {
               </Label>
               <div className="relative">
                 <Mail
-                  className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+                  className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
                   strokeWidth={1.75}
                   aria-hidden="true"
                 />
@@ -121,7 +131,9 @@ export default function Login() {
                   autoComplete="email"
                   placeholder="you@school.com"
                   value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, email: event.target.value })
+                  }
                   className="h-11 pl-10 text-[14px]"
                   required
                 />
@@ -134,7 +146,7 @@ export default function Login() {
               </Label>
               <div className="relative">
                 <LockKeyhole
-                  className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+                  className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
                   strokeWidth={1.75}
                   aria-hidden="true"
                 />
@@ -144,7 +156,9 @@ export default function Login() {
                   autoComplete="current-password"
                   placeholder="••••••••"
                   value={form.password}
-                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, password: event.target.value })
+                  }
                   className="h-11 pr-11 pl-10 text-[14px]"
                   required
                 />
@@ -152,7 +166,7 @@ export default function Login() {
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground"
+                  className="text-muted-foreground absolute top-1/2 right-1 -translate-y-1/2"
                   onClick={() => setShowPassword((value) => !value)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -165,16 +179,25 @@ export default function Login() {
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="mt-1 h-11 w-full text-[14px]" disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-1 h-11 w-full text-[14px]"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              ) : null}
               {loading ? "Signing in…" : "Sign in"}
             </Button>
           </form>
 
           <div className="my-7 flex items-center gap-3">
-            <span className="h-px flex-1 bg-border" />
-            <span className="text-[12px] text-muted-foreground">or try a demo account</span>
-            <span className="h-px flex-1 bg-border" />
+            <span className="bg-border h-px flex-1" />
+            <span className="text-muted-foreground text-[12px]">
+              or try a demo account
+            </span>
+            <span className="bg-border h-px flex-1" />
           </div>
 
           <div className="grid gap-2.5">
@@ -183,16 +206,20 @@ export default function Login() {
                 key={role}
                 type="button"
                 onClick={() => fill(email, password)}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border/70 bg-card/60 px-3.5 py-3 text-left outline-none transition-colors duration-150 hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/40"
+                className="border-border/70 bg-card/60 hover:bg-muted/60 focus-visible:ring-ring/40 flex w-full cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-150 outline-none focus-visible:ring-3"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/[0.08] text-primary ring-1 ring-primary/10 ring-inset">
-                  <Icon className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                <span className="bg-primary/[0.08] text-primary ring-primary/10 flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset">
+                  <Icon
+                    className="size-4"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[13px] leading-tight font-medium text-foreground">
+                  <span className="text-foreground block text-[13px] leading-tight font-medium">
                     {role}
                   </span>
-                  <span className="mt-1 block truncate text-[12px] leading-tight text-muted-foreground">
+                  <span className="text-muted-foreground mt-1 block truncate text-[12px] leading-tight">
                     {email}
                   </span>
                 </span>

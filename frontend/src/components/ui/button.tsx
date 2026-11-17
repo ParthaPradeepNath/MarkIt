@@ -1,11 +1,12 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { Slot } from "radix-ui"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cva, type VariantProps } from "class-variance-authority";
+import { Slot } from "radix-ui";
+
+import { cn } from "@/lib/utils";
 
 const whiteButton =
-  "border border-[#e5e5e5] bg-white text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.05),0_2px_6px_rgba(0,0,0,0.04)] transition-[color,box-shadow,background-color,border-color,transform] duration-200 ease-out enabled:hover:-translate-y-px enabled:hover:border-[#d4d4d4] enabled:hover:bg-[#fafafa] enabled:hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06)] enabled:active:translate-y-0 dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground dark:shadow-[0_1px_2px_rgba(0,0,0,0.4)] dark:enabled:hover:border-white/15 dark:enabled:hover:bg-white/[0.09]"
+  "border border-[#e5e5e5] bg-white text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.05),0_2px_6px_rgba(0,0,0,0.04)] transition-[color,box-shadow,background-color,border-color,transform] duration-200 ease-out enabled:hover:-translate-y-px enabled:hover:border-[#d4d4d4] enabled:hover:bg-[#fafafa] enabled:hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06)] enabled:active:translate-y-0 dark:border-white/10 dark:bg-white/[0.06] dark:text-foreground dark:shadow-[0_1px_2px_rgba(0,0,0,0.4)] dark:enabled:hover:border-white/15 dark:enabled:hover:bg-white/[0.09]";
 
 const buttonVariants = cva(
   "group/button relative isolate inline-flex shrink-0 cursor-pointer items-center justify-center bg-clip-padding font-medium whitespace-nowrap outline-none select-none transition-[color,box-shadow] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:border before:border-transparent before:transition-[scale,background-color,border-color,box-shadow] before:duration-150 before:ease-[var(--ease-out)] focus-visible:ring-3 focus-visible:ring-ring/40 motion-reduce:before:transition-none active:not-aria-[haspopup]:not-data-[variant=push]:before:scale-[0.99] data-pressed:not-data-[variant=push]:before:scale-[0.99] motion-reduce:active:before:scale-100 motion-reduce:data-pressed:before:scale-100 disabled:pointer-events-none disabled:opacity-50 aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -39,7 +40,7 @@ const buttonVariants = cva(
       size: "default",
     },
   }
-)
+);
 
 function Button({
   className,
@@ -49,9 +50,9 @@ function Button({
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
+    asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot.Root : "button"
+  const Comp = asChild ? Slot.Root : "button";
 
   return (
     <Comp
@@ -61,8 +62,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, buttonVariants }
-
+export { Button, buttonVariants };

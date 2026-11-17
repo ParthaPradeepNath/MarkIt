@@ -1,27 +1,27 @@
 import { useEffect, useId, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Dialog as DialogPrimitive } from "radix-ui";
+
 import { format } from "date-fns";
 import {
+  CalendarPlus,
+  ChartColumn,
+  ChevronRight,
+  ClipboardList,
+  History,
+  LayoutDashboard,
+  LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  LogOut,
-  UserRound,
-  ChevronRight,
-  LayoutDashboard,
   School,
+  UserRound,
   Users,
-  CalendarPlus,
-  ClipboardList,
-  History,
-  ChartColumn,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
+import { Dialog as DialogPrimitive } from "radix-ui";
+
 import SidebarContent from "@/components/layout/SidebarContent";
-import ThemeToggle from "@/components/ThemeToggle";
 import { Logo } from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,14 +32,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 import { initials } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { NavGroup } from "@/types";
 
 const teacherGroups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
-      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
+      {
+        to: "/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        end: true,
+      },
       { to: "/classes", label: "Classes", icon: School },
       { to: "/students", label: "Students", icon: Users },
     ],
@@ -63,7 +70,12 @@ const studentGroups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
-      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
+      {
+        to: "/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        end: true,
+      },
       { to: "/history", label: "My attendance", icon: History },
       { to: "/reports", label: "My report", icon: ChartColumn },
     ],
@@ -96,7 +108,9 @@ export default function AppLayout() {
   const flatNav = groups.flatMap((group) => group.items);
   const currentLabel =
     flatNav.find((item) =>
-      item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)
+      item.end
+        ? location.pathname === item.to
+        : location.pathname.startsWith(item.to)
     )?.label || "MarkIt";
 
   useEffect(() => {
@@ -126,8 +140,12 @@ export default function AppLayout() {
   const accountMenu = (align: "start" | "end" = "end") => (
     <DropdownMenuContent align={align} sideOffset={6} className="min-w-52">
       <DropdownMenuLabel className="px-2 py-1.5">
-        <p className="truncate text-[13px] font-medium text-foreground">{user?.name}</p>
-        <p className="truncate text-[11px] font-normal text-muted-foreground">{user?.email}</p>
+        <p className="text-foreground truncate text-[13px] font-medium">
+          {user?.name}
+        </p>
+        <p className="text-muted-foreground truncate text-[11px] font-normal">
+          {user?.email}
+        </p>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuItem
@@ -138,7 +156,7 @@ export default function AppLayout() {
       >
         <UserRound className="size-4" aria-hidden="true" />
         Profile
-        <ChevronRight className="ml-auto size-3.5 text-muted-foreground" />
+        <ChevronRight className="text-muted-foreground ml-auto size-3.5" />
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
@@ -149,11 +167,11 @@ export default function AppLayout() {
   );
 
   return (
-    <div className="theme-fade min-h-dvh bg-background">
+    <div className="theme-fade bg-background min-h-dvh">
       <div className="flex min-h-dvh">
         <aside
           className={cn(
-            "sticky top-0 hidden h-dvh shrink-0 overflow-hidden border-r border-sidebar-border transition-[width,background-color,border-color,color] duration-300 ease-[var(--ease-out)] md:block",
+            "border-sidebar-border sticky top-0 hidden h-dvh shrink-0 overflow-hidden border-r transition-[width,background-color,border-color,color] duration-300 ease-[var(--ease-out)] md:block",
             collapsed ? "w-[72px]" : "w-[256px]"
           )}
         >
@@ -168,7 +186,7 @@ export default function AppLayout() {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="theme-fade sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl backdrop-saturate-150 md:px-5">
+          <header className="theme-fade border-border/60 bg-background/80 sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1.5 border-b px-3 backdrop-blur-xl backdrop-saturate-150 md:px-5">
             <Button
               variant="secondary"
               size="icon"
@@ -182,7 +200,7 @@ export default function AppLayout() {
             <Button
               variant="secondary"
               size="icon"
-              className="hidden text-muted-foreground hover:text-foreground md:inline-flex"
+              className="text-muted-foreground hover:text-foreground hidden md:inline-flex"
               onClick={toggleCollapsed}
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -196,18 +214,23 @@ export default function AppLayout() {
 
             <div className="flex min-w-0 items-center gap-1.5 pl-0.5">
               <Logo className="size-5 md:hidden" />
-              <span className="hidden text-[12px] text-muted-foreground sm:inline">MarkIt</span>
+              <span className="text-muted-foreground hidden text-[12px] sm:inline">
+                MarkIt
+              </span>
               <ChevronRight
-                className="hidden size-3.5 text-muted-foreground/50 sm:inline"
+                className="text-muted-foreground/50 hidden size-3.5 sm:inline"
                 aria-hidden="true"
               />
-              <span className="truncate text-[13px] font-medium text-foreground" aria-current="page">
+              <span
+                className="text-foreground truncate text-[13px] font-medium"
+                aria-current="page"
+              >
                 {currentLabel}
               </span>
             </div>
 
             <div className="ml-auto flex items-center gap-1">
-              <span className="mr-1.5 hidden text-[12px] text-muted-foreground lg:inline">
+              <span className="text-muted-foreground mr-1.5 hidden text-[12px] lg:inline">
                 {format(new Date(), "EEEE, MMMM d")}
               </span>
               <ThemeToggle />
@@ -220,7 +243,7 @@ export default function AppLayout() {
                     aria-label="Account menu"
                   >
                     <Avatar size="sm">
-                      <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
@@ -231,7 +254,7 @@ export default function AppLayout() {
             </div>
           </header>
 
-          <main className="theme-fade flex-1 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 dark:bg-muted/10">
+          <main className="theme-fade bg-muted/30 dark:bg-muted/10 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <div className="mx-auto w-full max-w-[1140px]">
               <div key={location.pathname} className="page-enter">
                 <Outlet />
@@ -243,14 +266,14 @@ export default function AppLayout() {
 
       <DialogPrimitive.Root open={mobileOpen} onOpenChange={setMobileOpen}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay
-            className="fixed inset-0 z-50 bg-black/30 duration-200 supports-backdrop-filter:backdrop-blur-[2px] data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none"
-          />
+          <DialogPrimitive.Overlay className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-50 bg-black/30 duration-200 supports-backdrop-filter:backdrop-blur-[2px] motion-reduce:data-closed:animate-none motion-reduce:data-open:animate-none" />
           <DialogPrimitive.Content
             id={MOBILE_NAV_ID}
-            className="fixed inset-y-0 left-0 z-50 flex w-[286px] max-w-[85vw] flex-col border-r border-sidebar-border bg-sidebar shadow-float outline-none duration-300 ease-[var(--ease-drawer)] data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none"
+            className="border-sidebar-border bg-sidebar shadow-float data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left fixed inset-y-0 left-0 z-50 flex w-[286px] max-w-[85vw] flex-col border-r duration-300 ease-[var(--ease-drawer)] outline-none motion-reduce:data-closed:animate-none motion-reduce:data-open:animate-none"
           >
-            <DialogPrimitive.Title className="sr-only">Navigation</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="sr-only">
+              Navigation
+            </DialogPrimitive.Title>
             <DialogPrimitive.Description className="sr-only">
               Move between the pages of MarkIt.
             </DialogPrimitive.Description>

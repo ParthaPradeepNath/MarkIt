@@ -1,31 +1,52 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import { format } from "date-fns";
 import {
   ArrowUpRight,
+  BookOpen,
   CalendarCheck2,
   ChartColumn,
   ClipboardList,
   History,
   TriangleAlert,
-  BookOpen,
 } from "lucide-react";
+
 import api from "@/api/axios";
-import { useAuth } from "@/context/AuthContext";
-import PageHeader from "@/components/PageHeader";
-import StatCard from "@/components/StatCard";
-import StatusBadge from "@/components/StatusBadge";
 import AttendanceRing from "@/components/AttendanceRing";
-import SubjectIcon from "@/components/SubjectIcon";
 import EmptyState from "@/components/EmptyState";
 import ErrorState from "@/components/ErrorState";
-import { DashboardSkeleton } from "@/components/Skeletons";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EvilAreaChart } from "@/components/evilcharts/charts/recharts-area-chart";
-import { firstName, formatDate, formatMonth, getErrorMessage, greeting } from "@/lib/format";
+import PageHeader from "@/components/PageHeader";
+import { DashboardSkeleton } from "@/components/Skeletons";
+import StatCard from "@/components/StatCard";
+import StatusBadge from "@/components/StatusBadge";
+import SubjectIcon from "@/components/SubjectIcon";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/context/AuthContext";
+import {
+  firstName,
+  formatDate,
+  formatMonth,
+  getErrorMessage,
+  greeting,
+} from "@/lib/format";
 import type {
   AttendanceRecord,
   AttendanceStatus,
@@ -63,7 +84,9 @@ export default function StudentDashboard() {
     setError("");
     try {
       const [reportResponse, recordsResponse] = await Promise.all([
-        api.get<ReportData>("/reports/attendance", { params: { type: "student", studentId } }),
+        api.get<ReportData>("/reports/attendance", {
+          params: { type: "student", studentId },
+        }),
         api.get<AttendanceRecord[]>(`/attendance/student/${studentId}`),
       ]);
       setReport(reportResponse.data);
@@ -127,7 +150,7 @@ export default function StudentDashboard() {
         <Card className="relative overflow-hidden lg:col-span-2">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-primary/[0.06] blur-2xl"
+            className="bg-primary/[0.06] pointer-events-none absolute -top-24 -right-16 size-64 rounded-full blur-2xl"
           />
           <CardContent className="flex flex-1 flex-col justify-center gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
@@ -138,7 +161,7 @@ export default function StudentDashboard() {
                 label="Overall"
               />
               <div className="min-w-0">
-                <p className="text-[11px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-[0.06em] uppercase">
                   Your attendance
                 </p>
                 <p className="mt-1.5 text-[17px] leading-tight font-semibold tracking-[-0.02em]">
@@ -148,7 +171,7 @@ export default function StudentDashboard() {
                       : "You're on track"
                     : "No sessions yet"}
                 </p>
-                <p className="mt-1 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
+                <p className="text-muted-foreground mt-1 max-w-xs text-[13px] leading-relaxed">
                   {hasRecords
                     ? risk
                       ? "Aim for 75% or higher. Talk to your teacher about missed sessions."
@@ -199,12 +222,18 @@ export default function StudentDashboard() {
       {risk && (
         <Card className="border-warning/25 bg-warning/[0.045] shadow-none">
           <CardContent className="flex items-start gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-warning/15 text-warning ring-1 ring-warning/20 ring-inset">
-              <TriangleAlert className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
+            <span className="bg-warning/15 text-warning ring-warning/20 flex size-9 shrink-0 items-center justify-center rounded-[10px] ring-1 ring-inset">
+              <TriangleAlert
+                className="size-[18px]"
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
             </span>
             <div>
-              <p className="text-[13px] font-medium">Your attendance is below 75%</p>
-              <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+              <p className="text-[13px] font-medium">
+                Your attendance is below 75%
+              </p>
+              <p className="text-muted-foreground mt-0.5 text-[12px] leading-relaxed">
                 Please contact your teacher to get back on track.
               </p>
             </div>
@@ -216,7 +245,9 @@ export default function StudentDashboard() {
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Monthly trend</CardTitle>
-            <CardDescription>Your attendance percentage over time.</CardDescription>
+            <CardDescription>
+              Your attendance percentage over time.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {trend.length === 0 ? (
@@ -233,10 +264,15 @@ export default function StudentDashboard() {
                 className="h-[248px] w-full"
                 xDataKey="month"
                 curveType="monotone"
-                chartProps={{ margin: { top: 6, right: 8, left: 0, bottom: 0 } }}
+                chartProps={{
+                  margin: { top: 6, right: 8, left: 0, bottom: 0 },
+                }}
               >
                 <EvilAreaChart.Grid />
-                <EvilAreaChart.XAxis dataKey="month" tickFormatter={formatMonth} />
+                <EvilAreaChart.XAxis
+                  dataKey="month"
+                  tickFormatter={formatMonth}
+                />
                 <EvilAreaChart.YAxis
                   domain={[0, 100]}
                   ticks={[0, 25, 50, 75, 100]}
@@ -277,15 +313,21 @@ export default function StudentDashboard() {
                         />
                         <p className="truncate text-[13px] font-medium">
                           {cls.className}{" "}
-                          <span className="font-normal text-muted-foreground">({cls.batch})</span>
+                          <span className="text-muted-foreground font-normal">
+                            ({cls.batch})
+                          </span>
                         </p>
                       </div>
-                      <span className="tnum text-[12px] font-medium">{cls.summary.percentage}%</span>
+                      <span className="tnum text-[12px] font-medium">
+                        {cls.summary.percentage}%
+                      </span>
                     </div>
                     <Progress
                       value={cls.summary.percentage}
                       className={
-                        cls.summary.risk ? "mt-1.5 [&>div]:bg-warning" : "mt-1.5"
+                        cls.summary.risk
+                          ? "[&>div]:bg-warning mt-1.5"
+                          : "mt-1.5"
                       }
                     />
                   </div>
@@ -300,7 +342,9 @@ export default function StudentDashboard() {
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <CardTitle>Recent records</CardTitle>
-            <p className="mt-1 text-[12px] text-muted-foreground">Your latest attendance entries.</p>
+            <p className="text-muted-foreground mt-1 text-[12px]">
+              Your latest attendance entries.
+            </p>
           </div>
           <Button asChild variant="secondary" size="sm">
             <Link to="/history">View all</Link>
@@ -330,11 +374,13 @@ export default function StudentDashboard() {
                     <TableCell className="text-muted-foreground">
                       {formatDate(record.date, "MMM d, yyyy")}
                     </TableCell>
-                    <TableCell className="hidden font-medium sm:table-cell">{record.class?.name || "—"}</TableCell>
+                    <TableCell className="hidden font-medium sm:table-cell">
+                      {record.class?.name || "—"}
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={record.status} />
                     </TableCell>
-                    <TableCell className="hidden max-w-[220px] truncate text-muted-foreground md:table-cell">
+                    <TableCell className="text-muted-foreground hidden max-w-[220px] truncate md:table-cell">
                       {record.remark || "—"}
                     </TableCell>
                   </TableRow>

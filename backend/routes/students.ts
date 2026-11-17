@@ -1,12 +1,13 @@
 import express from "express";
+
 import {
-  getStudents,
-  getStudentById,
   createStudent,
-  updateStudent,
   deleteStudent,
+  getStudentById,
+  getStudents,
+  updateStudent,
 } from "../controllers/studentController.js";
-import { protect, authorize } from "../middleware/auth.js";
+import { authorize, protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
