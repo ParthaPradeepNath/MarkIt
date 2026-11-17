@@ -1,0 +1,95 @@
+// MarkIt data model — PostgreSQL (Neon) via Prisma.
+// Field names follow Prisma conventions: `id` for primary keys and explicit
+// relation fields (`student`, `class`, `students`) for references.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  teacher
+  student
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  leave
+}
+
+model User {
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  password         String
+  role             Role
+  studentId        String?      @unique
+  student          Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  classes          Class[]      @relation("TeacherClasses")
+  attendanceMarked Attendance[] @relation("MarkedByUser")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([role])
+}
+
+model Student {
+  id            String       @id @default(cuid())
+  name          String
+  email         String       @unique
+  rollNumber    String
+  batch         String
+  classId       String?
+  class         Class?       @relation(fields: [classId], references: [id], onDelete: SetNull)
+  guardianPhone String?
+  user          User?
+  attendance    Attendance[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([batch])
+  @@index([classId])
+}
+
+model Class {
+  id         String       @id @default(cuid())
+  name       String
+  subject    String
+  batch      String
+  teacherId  String
+  teacher    User         @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  schedule   String?
+  students   Student[]
+  attendance Attendance[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([teacherId])
+  @@index([batch])
+}
+
+model Attendance {
+  id         String          @id @default(cuid())
+  classId    String
+  class      Class           @relation(fields: [classId], references: [id], onDelete: Cascade)
+  studentId  String
+  student    Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date       DateTime        @db.Date
+  status     AttendanceStatus
+  markedById String
+  markedBy   User            @relation("MarkedByUser", fields: [markedById], references: [id])
+  remark     String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  // One record per student, per class, per day (replaces the Mongo compound index).
+  @@unique([classId, studentId, date])
+  @@index([studentId, date])
+  @@index([classId, date])
+}
