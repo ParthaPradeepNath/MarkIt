@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../config/db.js";
 import { hashPassword } from "../lib/user.js";
 import { errorMessage } from "../lib/error.js";

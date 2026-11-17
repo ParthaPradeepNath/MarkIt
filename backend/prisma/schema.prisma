@@ -3,12 +3,14 @@
 // relation fields (`student`, `class`, `students`) for references.
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
+// In Prisma 7 the connection URL is supplied by prisma.config.ts and the
+// runtime driver adapter (see config/db.ts), not by the schema.
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {

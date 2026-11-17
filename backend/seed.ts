@@ -1,6 +1,6 @@
 import "./config/env.js";
-import type { AttendanceStatus } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { AttendanceStatus } from "./generated/prisma/client";
+import { Prisma } from "./generated/prisma/client";
 import { connectDB, disconnectDB, prisma } from "./config/db.js";
 import { hashPassword } from "./lib/user.js";
 

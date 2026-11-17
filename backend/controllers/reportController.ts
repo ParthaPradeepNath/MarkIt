@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { AttendanceStatus } from "@prisma/client";
+import type { AttendanceStatus } from "../generated/prisma/client";
 import { prisma } from "../config/db.js";
 import { errorMessage } from "../lib/error.js";
 import { queryString } from "../lib/http.js";

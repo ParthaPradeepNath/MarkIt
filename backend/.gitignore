@@ -25,3 +25,6 @@ dist-ssr
 
 .env
 .data
+
+# Generated Prisma 7 client (recreated by `bun run prisma:generate`)
+generated/

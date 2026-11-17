@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response } from "express";
-import type { Class, Student, User } from "@prisma/client";
+import type { Class, Student, User } from "../generated/prisma/client";
 import { prisma } from "../config/db.js";
 import { hashPassword, matchPassword } from "../lib/user.js";
 import { errorMessage } from "../lib/error.js";
