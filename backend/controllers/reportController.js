@@ -1,6 +1,4 @@
-import Attendance from "../models/Attendance.js";
-import Student from "../models/Student.js";
-import Class from "../models/Class.js";
+import { prisma } from "../config/db.js";
 
 const PRESENT_LIKE = ["present", "late"];
 
@@ -41,17 +39,23 @@ export const getReport = async (req, res) => {
 
     if (type === "student") {
       if (!studentId) return res.status(400).json({ message: "studentId is required" });
-      const student = await Student.findById(studentId).populate("className");
+      const student = await prisma.student.findUnique({
+        where: { id: studentId },
+        include: { class: true },
+      });
       if (!student) return res.status(404).json({ message: "Student not found" });
-      const records = await Attendance.find({ studentId }).populate("classId", "name subject batch");
+      const records = await prisma.attendance.findMany({
+        where: { studentId },
+        include: { class: { select: { id: true, name: true, subject: true, batch: true } } },
+      });
       const byClass = {};
       records.forEach((r) => {
-        const key = r.classId?._id?.toString() || "unknown";
+        const key = r.class?.id || "unknown";
         if (!byClass[key]) {
           byClass[key] = {
-            className: r.classId?.name || "Unknown",
-            subject: r.classId?.subject || "",
-            batch: r.classId?.batch || "",
+            className: r.class?.name || "Unknown",
+            subject: r.class?.subject || "",
+            batch: r.class?.batch || "",
             records: [],
           };
         }
@@ -71,15 +75,23 @@ export const getReport = async (req, res) => {
 
     if (type === "class") {
       if (!classId) return res.status(400).json({ message: "classId is required" });
-      const cls = await Class.findById(classId).populate("enrolledStudents");
+      const cls = await prisma.class.findUnique({
+        where: { id: classId },
+        include: { students: true },
+      });
       if (!cls) return res.status(404).json({ message: "Class not found" });
-      const records = await Attendance.find({ classId }).populate("studentId", "name rollNumber");
+      const records = await prisma.attendance.findMany({
+        where: { classId },
+        include: {
+          student: { select: { id: true, name: true, rollNumber: true } },
+        },
+      });
       const perStudent = {};
       records.forEach((r) => {
-        const sid = r.studentId?._id?.toString() || "unknown";
+        const sid = r.student?.id || "unknown";
         if (!perStudent[sid]) {
           perStudent[sid] = {
-            student: r.studentId || { name: "Unknown", rollNumber: "-" },
+            student: r.student || { name: "Unknown", rollNumber: "-" },
             records: [],
           };
         }
@@ -99,17 +111,19 @@ export const getReport = async (req, res) => {
 
     if (type === "batch") {
       if (!batch) return res.status(400).json({ message: "batch is required" });
-      const students = await Student.find({ batch });
-      const ids = students.map((s) => s._id);
-      const records = await Attendance.find({ studentId: { $in: ids } }).populate(
-        "studentId",
-        "name rollNumber batch"
-      );
+      const students = await prisma.student.findMany({ where: { batch } });
+      const ids = students.map((s) => s.id);
+      const records = await prisma.attendance.findMany({
+        where: { studentId: { in: ids } },
+        include: {
+          student: { select: { id: true, name: true, rollNumber: true, batch: true } },
+        },
+      });
       const perStudent = {};
       records.forEach((r) => {
-        const sid = r.studentId?._id?.toString();
+        const sid = r.student?.id;
         if (!sid) return;
-        if (!perStudent[sid]) perStudent[sid] = { student: r.studentId, records: [] };
+        if (!perStudent[sid]) perStudent[sid] = { student: r.student, records: [] };
         perStudent[sid].records.push(r);
       });
       const studentSummaries = Object.values(perStudent).map((p) => ({
@@ -135,14 +149,13 @@ export const getReport = async (req, res) => {
 
 export const getLowAttendanceStudents = async (req, res) => {
   try {
-    const threshold = parseInt(req.query.threshold) || 75;
     const classId = req.query.classId;
-    const studentFilter = {};
-    if (classId) studentFilter.className = classId;
-    const students = await Student.find(studentFilter);
+    const students = await prisma.student.findMany({
+      where: classId ? { classId } : {},
+    });
     const result = [];
     for (const s of students) {
-      const records = await Attendance.find({ studentId: s._id });
+      const records = await prisma.attendance.findMany({ where: { studentId: s.id } });
       const summary = computeSummary(records);
       if (summary.risk) {
         result.push({ student: s, summary });

@@ -1,5 +1,10 @@
-import Attendance from "../models/Attendance.js";
-import Class from "../models/Class.js";
+import { prisma } from "../config/db.js";
+
+const attendanceInclude = {
+  student: { select: { id: true, name: true, rollNumber: true, batch: true } },
+  class: { select: { id: true, name: true, subject: true, batch: true } },
+  markedBy: { select: { id: true, name: true } },
+};
 
 const normalizeDate = (d) => {
   const date = new Date(d);
@@ -13,9 +18,9 @@ export const markAttendance = async (req, res) => {
     if (!classId || !date || !Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ message: "classId, date and records are required" });
     }
-    const cls = await Class.findById(classId);
+    const cls = await prisma.class.findUnique({ where: { id: classId } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
-    if (cls.teacherId.toString() !== req.user._id.toString()) {
+    if (cls.teacherId !== req.user.id) {
       return res.status(403).json({ message: "Only the class teacher can mark attendance" });
     }
     const day = normalizeDate(date);
@@ -24,11 +29,29 @@ export const markAttendance = async (req, res) => {
       if (!["present", "absent", "late", "leave"].includes(r.status)) {
         return res.status(400).json({ message: `Invalid status: ${r.status}` });
       }
-      const doc = await Attendance.findOneAndUpdate(
-        { classId, studentId: r.studentId, date: day },
-        { status: r.status, remark: r.remark || "", markedBy: req.user._id },
-        { upsert: true, new: true }
-      );
+      const doc = await prisma.attendance.upsert({
+        where: {
+          classId_studentId_date: {
+            classId,
+            studentId: r.studentId,
+            date: day,
+          },
+        },
+        create: {
+          classId,
+          studentId: r.studentId,
+          date: day,
+          status: r.status,
+          remark: r.remark || "",
+          markedById: req.user.id,
+        },
+        update: {
+          status: r.status,
+          remark: r.remark || "",
+          markedById: req.user.id,
+        },
+        include: attendanceInclude,
+      });
       saved.push(doc);
     }
     res.json({ message: `Marked ${saved.length} records`, saved });
@@ -40,16 +63,20 @@ export const markAttendance = async (req, res) => {
 export const updateAttendance = async (req, res) => {
   try {
     const { status, remark } = req.body;
-    const record = await Attendance.findById(req.params.id);
+    const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
     if (!record) return res.status(404).json({ message: "Attendance record not found" });
     if (status && !["present", "absent", "late", "leave"].includes(status)) {
       return res.status(400).json({ message: `Invalid status: ${status}` });
     }
-    if (status) record.status = status;
-    if (remark !== undefined) record.remark = remark;
-    record.markedBy = req.user._id;
-    await record.save();
-    res.json(record);
+    const data = { markedById: req.user.id };
+    if (status) data.status = status;
+    if (remark !== undefined) data.remark = remark;
+    const updated = await prisma.attendance.update({
+      where: { id: record.id },
+      data,
+      include: attendanceInclude,
+    });
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -60,13 +87,16 @@ export const getStudentAttendance = async (req, res) => {
     const { id } = req.params;
     const allowed =
       req.user.role === "teacher" ||
-      (req.user.studentId && (req.user.studentId._id?.toString() === id || req.user.studentId.toString() === id));
+      req.user.studentId === id ||
+      req.user.student?.id === id;
     if (!allowed) {
       return res.status(403).json({ message: "Not allowed to view this student's attendance" });
     }
-    const records = await Attendance.find({ studentId: id })
-      .populate("classId", "name subject batch")
-      .sort({ date: -1 });
+    const records = await prisma.attendance.findMany({
+      where: { studentId: id },
+      include: attendanceInclude,
+      orderBy: { date: "desc" },
+    });
     res.json(records);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -77,12 +107,13 @@ export const getClassAttendance = async (req, res) => {
   try {
     const { classId } = req.params;
     const { date } = req.query;
-    const filter = { classId };
-    if (date) filter.date = normalizeDate(date);
-    const records = await Attendance.find(filter)
-      .populate("studentId", "name rollNumber batch")
-      .populate("classId", "name subject batch")
-      .sort({ date: -1 });
+    const where = { classId };
+    if (date) where.date = normalizeDate(date);
+    const records = await prisma.attendance.findMany({
+      where,
+      include: attendanceInclude,
+      orderBy: { date: "desc" },
+    });
     res.json(records);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -91,9 +122,9 @@ export const getClassAttendance = async (req, res) => {
 
 export const deleteAttendance = async (req, res) => {
   try {
-    const record = await Attendance.findById(req.params.id);
+    const record = await prisma.attendance.findUnique({ where: { id: req.params.id } });
     if (!record) return res.status(404).json({ message: "Attendance record not found" });
-    await record.deleteOne();
+    await prisma.attendance.delete({ where: { id: record.id } });
     res.json({ message: "Attendance record deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });

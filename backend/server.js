@@ -1,7 +1,7 @@
 import "./config/env.js";
 import express from "express";
 import cors from "cors";
-import connectDB, { disconnectDB, getDatabaseInfo } from "./config/db.js";
+import { connectDB, disconnectDB, getDatabaseInfo } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import classRoutes from "./routes/classes.js";
 import studentRoutes from "./routes/students.js";

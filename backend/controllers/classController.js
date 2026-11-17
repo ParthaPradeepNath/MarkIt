@@ -1,15 +1,21 @@
-import Class from "../models/Class.js";
-import Student from "../models/Student.js";
+import { prisma } from "../config/db.js";
+
+const classInclude = { students: true };
 
 export const getClasses = async (req, res) => {
   try {
     let classes;
     if (req.user.role === "teacher") {
-      classes = await Class.find({ teacherId: req.user._id }).populate("enrolledStudents");
+      classes = await prisma.class.findMany({
+        where: { teacherId: req.user.id },
+        include: classInclude,
+      });
     } else {
-      const studentId = req.user.studentId?._id || req.user.studentId;
-      if (!studentId) return res.json([]);
-      classes = await Class.find({ enrolledStudents: studentId }).populate("enrolledStudents");
+      if (!req.user.studentId) return res.json([]);
+      classes = await prisma.class.findMany({
+        where: { students: { some: { id: req.user.studentId } } },
+        include: classInclude,
+      });
     }
     res.json(classes);
   } catch (error) {
@@ -19,7 +25,10 @@ export const getClasses = async (req, res) => {
 
 export const getClassById = async (req, res) => {
   try {
-    const cls = await Class.findById(req.params.id).populate("enrolledStudents");
+    const cls = await prisma.class.findUnique({
+      where: { id: req.params.id },
+      include: classInclude,
+    });
     if (!cls) return res.status(404).json({ message: "Class not found" });
     res.json(cls);
   } catch (error) {
@@ -33,12 +42,9 @@ export const createClass = async (req, res) => {
     if (!name || !subject || !batch) {
       return res.status(400).json({ message: "Name, subject and batch are required" });
     }
-    const cls = await Class.create({
-      name,
-      subject,
-      batch,
-      schedule,
-      teacherId: req.user._id,
+    const cls = await prisma.class.create({
+      data: { name, subject, batch, schedule, teacherId: req.user.id },
+      include: classInclude,
     });
     res.status(201).json(cls);
   } catch (error) {
@@ -49,24 +55,24 @@ export const createClass = async (req, res) => {
 export const enrollStudents = async (req, res) => {
   try {
     const { studentIds } = req.body;
-    const cls = await Class.findById(req.params.id);
+    const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
-    if (cls.teacherId.toString() !== req.user._id.toString()) {
+    if (cls.teacherId !== req.user.id) {
       return res.status(403).json({ message: "You can only manage your own classes" });
     }
     if (!Array.isArray(studentIds) || studentIds.length === 0) {
       return res.status(400).json({ message: "studentIds array is required" });
     }
-    const enrolled = new Set(cls.enrolledStudents.map((id) => id.toString()));
     for (const id of studentIds) {
-      if (!enrolled.has(id.toString())) {
-        cls.enrolledStudents.push(id);
-        enrolled.add(id.toString());
-      }
-      await Student.findByIdAndUpdate(id, { className: cls._id });
+      await prisma.student.updateMany({
+        where: { id },
+        data: { classId: cls.id },
+      });
     }
-    await cls.save();
-    const populated = await Class.findById(cls._id).populate("enrolledStudents");
+    const populated = await prisma.class.findUnique({
+      where: { id: cls.id },
+      include: classInclude,
+    });
     res.json(populated);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -76,18 +82,20 @@ export const enrollStudents = async (req, res) => {
 export const removeStudentFromClass = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const cls = await Class.findById(req.params.id);
+    const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
-    if (cls.teacherId.toString() !== req.user._id.toString()) {
+    if (cls.teacherId !== req.user.id) {
       return res.status(403).json({ message: "You can only manage your own classes" });
     }
-    cls.enrolledStudents = cls.enrolledStudents.filter((id) => id.toString() !== studentId);
-    await cls.save();
-    await Student.updateOne(
-      { _id: studentId, className: cls._id },
-      { $unset: { className: "" } }
-    );
-    res.json(cls);
+    await prisma.student.updateMany({
+      where: { id: studentId, classId: cls.id },
+      data: { classId: null },
+    });
+    const populated = await prisma.class.findUnique({
+      where: { id: cls.id },
+      include: classInclude,
+    });
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -95,16 +103,13 @@ export const removeStudentFromClass = async (req, res) => {
 
 export const deleteClass = async (req, res) => {
   try {
-    const cls = await Class.findById(req.params.id);
+    const cls = await prisma.class.findUnique({ where: { id: req.params.id } });
     if (!cls) return res.status(404).json({ message: "Class not found" });
-    if (cls.teacherId.toString() !== req.user._id.toString()) {
+    if (cls.teacherId !== req.user.id) {
       return res.status(403).json({ message: "You can only delete your own classes" });
     }
-    await cls.deleteOne();
-    await Student.updateMany(
-      { className: cls._id },
-      { $unset: { className: "" } }
-    );
+    // ON DELETE rules clear Student.classId and remove attendance for this class.
+    await prisma.class.delete({ where: { id: cls.id } });
     res.json({ message: "Class deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });

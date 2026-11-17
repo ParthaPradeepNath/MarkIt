@@ -1,26 +1,24 @@
 import "./config/env.js";
-import connectDB, { disconnectDB } from "./config/db.js";
-import User from "./models/User.js";
-import Student from "./models/Student.js";
-import Class from "./models/Class.js";
-import Attendance from "./models/Attendance.js";
+import { connectDB, disconnectDB, prisma } from "./config/db.js";
+import { hashPassword } from "./lib/user.js";
 
 const run = async () => {
   await connectDB();
 
-  await Promise.all([
-    User.deleteMany({}),
-    Student.deleteMany({}),
-    Class.deleteMany({}),
-    Attendance.deleteMany({}),
-  ]);
+  // Delete in FK-safe order.
+  await prisma.attendance.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.student.deleteMany({});
+  await prisma.class.deleteMany({});
   console.log("Cleared existing data");
 
-  const teacher = await User.create({
-    name: "Dr. Partha Nath",
-    email: "teacher@school.com",
-    password: "password123",
-    role: "teacher",
+  const teacher = await prisma.user.create({
+    data: {
+      name: "Dr. Partha Nath",
+      email: "teacher@school.com",
+      password: await hashPassword("password123"),
+      role: "teacher",
+    },
   });
 
   const studentSeed = [
@@ -35,48 +33,58 @@ const run = async () => {
 
   const createdStudents = [];
   for (const s of studentSeed) {
-    const student = await Student.create({
-      name: s.name,
-      email: `${s.name.toLowerCase().split(" ").join(".")}@student.school.com`,
-      rollNumber: s.rollNumber,
-      batch: s.batch,
-      guardianPhone: s.guardianPhone,
+    const email = `${s.name.toLowerCase().split(" ").join(".")}@student.school.com`;
+    const student = await prisma.student.create({
+      data: {
+        name: s.name,
+        email,
+        rollNumber: s.rollNumber,
+        batch: s.batch,
+        guardianPhone: s.guardianPhone,
+      },
     });
-    await User.create({
-      name: s.name,
-      email: `${s.name.toLowerCase().split(" ").join(".")}@student.school.com`,
-      password: "password123",
-      role: "student",
-      studentId: student._id,
+    const hashedPassword = await hashPassword("password123");
+    await prisma.user.create({
+      data: {
+        name: s.name,
+        email,
+        password: hashedPassword,
+        role: "student",
+        studentId: student.id,
+      },
     });
     createdStudents.push(student);
   }
 
-  const classA = await Class.create({
-    name: "Mathematics 101",
-    subject: "Mathematics",
-    batch: "Batch A",
-    teacherId: teacher._id,
-    schedule: "Mon/Wed/Fri 10 AM",
-    enrolledStudents: createdStudents.slice(0, 5).map((s) => s._id),
+  const classA = await prisma.class.create({
+    data: {
+      name: "Mathematics 101",
+      subject: "Mathematics",
+      batch: "Batch A",
+      teacherId: teacher.id,
+      schedule: "Mon/Wed/Fri 10 AM",
+    },
   });
-  const classB = await Class.create({
-    name: "Physics 201",
-    subject: "Physics",
-    batch: "Batch B",
-    teacherId: teacher._id,
-    schedule: "Tue/Thu 2 PM",
-    enrolledStudents: createdStudents.slice(5).map((s) => s._id),
+  const classB = await prisma.class.create({
+    data: {
+      name: "Physics 201",
+      subject: "Physics",
+      batch: "Batch B",
+      teacherId: teacher.id,
+      schedule: "Tue/Thu 2 PM",
+    },
   });
 
-  await Student.updateMany(
-    { _id: { $in: classA.enrolledStudents } },
-    { className: classA._id }
-  );
-  await Student.updateMany(
-    { _id: { $in: classB.enrolledStudents } },
-    { className: classB._id }
-  );
+  const classAStudents = createdStudents.slice(0, 5);
+  const classBStudents = createdStudents.slice(5);
+  await prisma.student.updateMany({
+    where: { id: { in: classAStudents.map((s) => s.id) } },
+    data: { classId: classA.id },
+  });
+  await prisma.student.updateMany({
+    where: { id: { in: classBStudents.map((s) => s.id) } },
+    data: { classId: classB.id },
+  });
 
   const statuses = ["present", "present", "present", "absent", "late", "leave", "present", "absent"];
   const days = 30;
@@ -87,7 +95,11 @@ const run = async () => {
     return d;
   });
 
-  const allStudents = [...createdStudents.slice(0, 5).map((s) => ({ s, cls: classA })), ...createdStudents.slice(5).map((s) => ({ s, cls: classB }))];
+  const attendanceData = [];
+  const allStudents = [
+    ...classAStudents.map((s) => ({ s, cls: classA })),
+    ...classBStudents.map((s) => ({ s, cls: classB })),
+  ];
 
   for (const { s, cls } of allStudents) {
     const isRiskStudent = s.name === "Kabir Singh" || s.name === "Vikram Rao";
@@ -95,16 +107,18 @@ const run = async () => {
       if (date.getUTCDay() === 0) continue;
       let status = statuses[Math.floor(Math.random() * statuses.length)];
       if (isRiskStudent && Math.random() < 0.55) status = "absent";
-      await Attendance.create({
-        classId: cls._id,
-        studentId: s._id,
+      attendanceData.push({
+        classId: cls.id,
+        studentId: s.id,
         date,
         status,
-        markedBy: teacher._id,
+        markedById: teacher.id,
         remark: status === "absent" ? "absent" : "",
       });
     }
   }
+
+  await prisma.attendance.createMany({ data: attendanceData });
 
   console.log(`
 Seed complete!
